@@ -1,3 +1,4 @@
+require('dotenv').config({ path: require('path').join(__dirname, '..', '..', '.env') });
 const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = process.env.SUPABASE_URL || '';
@@ -11,17 +12,18 @@ const isConfigured = Boolean(supabaseUrl && (supabaseServiceKey || supabaseAnonK
 
 if (isConfigured) {
   try {
-    const adminKey = supabaseServiceKey || supabaseAnonKey;
-    supabaseAdmin = createClient(supabaseUrl, adminKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    });
+    if (supabaseServiceKey) {
+      supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      });
+    }
 
     if (supabaseAnonKey) {
       supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
-    } else {
+    } else if (supabaseAdmin) {
       supabaseClient = supabaseAdmin;
     }
   } catch (err) {

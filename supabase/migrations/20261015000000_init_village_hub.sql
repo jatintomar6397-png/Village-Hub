@@ -226,3 +226,35 @@ DROP POLICY IF EXISTS "Admins can update application status" ON public.applicati
 CREATE POLICY "Admins can update application status"
     ON public.applications FOR UPDATE
     USING (public.is_admin());
+
+-- -----------------------------------------------------------------------------
+-- Table & Sequence Privileges (Strict Least Privilege)
+-- PostgREST requires table-level privileges before RLS is evaluated.
+-- service_role has BYPASSRLS attribute, while anon and authenticated are restricted by RLS.
+-- -----------------------------------------------------------------------------
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+
+-- Service Role (Full CRUD for backend server & migrations)
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.profiles TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.villages TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.complaints TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.applications TO service_role;
+GRANT USAGE, SELECT ON SEQUENCE public.villages_id_seq TO service_role;
+GRANT EXECUTE ON FUNCTION public.is_admin() TO service_role;
+GRANT EXECUTE ON FUNCTION public.set_current_timestamp_updated_at() TO service_role;
+
+-- Anonymous / Public
+GRANT SELECT ON TABLE public.villages TO anon;
+GRANT INSERT, SELECT ON TABLE public.complaints TO anon;
+GRANT INSERT ON TABLE public.applications TO anon;
+
+-- Authenticated Users
+GRANT SELECT, UPDATE ON TABLE public.profiles TO authenticated;
+GRANT SELECT ON TABLE public.villages TO authenticated;
+GRANT INSERT, SELECT ON TABLE public.complaints TO authenticated;
+GRANT INSERT ON TABLE public.applications TO authenticated;
+
+GRANT EXECUTE ON FUNCTION public.is_admin() TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.set_current_timestamp_updated_at() TO authenticated;
+
+

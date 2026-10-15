@@ -1,3 +1,4 @@
+const { supabaseAdmin } = require('./config/supabase');
 const BASE = 'http://localhost:5000';
 let passCount = 0;
 let failCount = 0;
@@ -7,6 +8,7 @@ let testVillageId = '';
 let testComplaintId = '';
 let testComplaintDbId = '';
 let testAppId = '';
+let testEmail = '';
 
 async function request(method, path, body = null, token = null) {
     const headers = { 'Content-Type': 'application/json' };
@@ -59,7 +61,7 @@ async function runTests() {
     });
 
     // 2. Signup
-    const testEmail = `testuser${Date.now()}@example.com`;
+    testEmail = `testuser${Date.now()}@example.com`;
     await test('Signup: POST /api/auth/signup with test user', async () => {
         const { status, data } = await request('POST', '/api/auth/signup', {
             name: 'Test User',
@@ -239,6 +241,40 @@ async function runTests() {
         }, adminToken);
         assert(status === 200, `Expected 200, got ${status}`);
     });
+
+    // Teardown: Rollback test records created during integration tests
+    console.log('\nCleaning up integration test records (rollback)...');
+    if (supabaseAdmin) {
+        if (testComplaintDbId) {
+            await supabaseAdmin.from('complaints').delete().eq('id', testComplaintDbId);
+            console.log('  Cleaned up test complaint:', testComplaintDbId);
+        }
+        if (testAppId) {
+            await supabaseAdmin.from('applications').delete().eq('id', testAppId);
+            console.log('  Cleaned up test application:', testAppId);
+        }
+        if (testEmail && testEmail !== 'admin@villagehub.in') {
+            const { data: usersData } = await supabaseAdmin.auth.admin.listUsers();
+            const createdUser = usersData && usersData.users ? usersData.users.find(u => u.email === testEmail) : null;
+            if (createdUser && createdUser.email !== 'admin@villagehub.in') {
+                await supabaseAdmin.auth.admin.deleteUser(createdUser.id);
+                console.log('  Cleaned up test user:', testEmail);
+            }
+        }
+    }
+
+    // Verify post-test clean counts
+    if (supabaseAdmin) {
+        const { count: vCount } = await supabaseAdmin.from('villages').select('*', { count: 'exact', head: true });
+        const { count: cCount } = await supabaseAdmin.from('complaints').select('*', { count: 'exact', head: true });
+        const { count: aCount } = await supabaseAdmin.from('applications').select('*', { count: 'exact', head: true });
+        const { count: pCount } = await supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true });
+        console.log(`\nPost-Test Clean State: Villages=${vCount}, Complaints=${cCount}, Applications=${aCount}, Profiles=${pCount}`);
+        assert(vCount === 46, `Expected 46 villages, got ${vCount}`);
+        assert(cCount === 0, `Expected 0 complaints, got ${cCount}`);
+        assert(aCount === 0, `Expected 0 applications, got ${aCount}`);
+        assert(pCount === 1, `Expected 1 admin profile, got ${pCount}`);
+    }
 
     console.log(`\n--- Test Summary ---`);
     console.log(`Total: ${passCount + failCount}`);
