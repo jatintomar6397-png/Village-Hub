@@ -3,14 +3,53 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
-const { connectDB } = require('./config/db');
+const { connectDB, getMongoConnected } = require('./config/db');
+const { isConfigured, testConnection } = require('./config/supabase');
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// Configurable CORS
+const rawAllowed = process.env.ALLOWED_ORIGINS || '*';
+const allowedOrigins = rawAllowed.split(',').map(o => o.trim()).filter(Boolean);
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (e.g. server-to-server, curl, same-origin)
+        if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(null, false);
+    },
+    credentials: true
+}));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Health Check Endpoint (safe reporting, no secrets exposed)
+app.get('/api/health', async (req, res) => {
+    let dbStatus = {
+        provider: isConfigured ? 'supabase' : (getMongoConnected() ? 'mongodb' : 'json_fallback'),
+        connected: false
+    };
+
+    if (isConfigured) {
+        const conn = await testConnection();
+        dbStatus.connected = conn.connected;
+    } else if (getMongoConnected()) {
+        dbStatus.connected = true;
+    } else {
+        dbStatus.connected = true; // Local JSON development storage active
+    }
+
+    res.json({
+        success: true,
+        status: 'healthy',
+        uptime: Math.floor(process.uptime()),
+        timestamp: new Date().toISOString(),
+        database: dbStatus
+    });
+});
 
 // Rate limiting on API routes
 const apiLimiter = rateLimit({
@@ -35,21 +74,31 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
-// Error handler
+// Error handler (safe, no stack traces leaked)
 app.use((err, req, res, next) => {
     console.error('Server Error:', err.message);
     res.status(500).json({ success: false, message: 'Internal server error' });
 });
 
+const HOST = '0.0.0.0';
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
-    await connectDB();
-    app.listen(PORT, () => {
+    if (!isConfigured) {
+        // In local mode without Supabase, initialize MongoDB or fallback to JsonStore
+        await connectDB();
+    } else {
+        console.log('Supabase mode active.');
+    }
+
+    app.listen(PORT, HOST, () => {
         console.log('\n======================================================================');
         console.log('  VILLAGE HUB — Backend Server');
         console.log('======================================================================');
+        console.log(`  Host:   ${HOST}`);
+        console.log(`  Port:   ${PORT}`);
         console.log(`  Local:  http://localhost:${PORT}`);
+        console.log(`  Health: http://localhost:${PORT}/api/health`);
         console.log(`  API:    http://localhost:${PORT}/api/stats`);
         console.log('======================================================================\n');
     });

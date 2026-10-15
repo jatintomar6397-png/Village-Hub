@@ -41,6 +41,15 @@ function assert(condition, msg) {
 async function runTests() {
     console.log('Starting End-to-End Test Suite...\n');
 
+    // 0. Health endpoint
+    await test('Health: GET /api/health returns healthy and reports database status', async () => {
+        const { status, data } = await request('GET', '/api/health');
+        assert(status === 200, `Expected 200, got ${status}`);
+        assert(data && data.success, 'Expected success true');
+        assert(data.status === 'healthy', `Expected healthy, got ${data.status}`);
+        assert(data.database && data.database.provider, 'Expected database provider info');
+    });
+
     // 1. Stats
     await test('Stats: GET /api/stats returns success', async () => {
         const { status, data } = await request('GET', '/api/stats');

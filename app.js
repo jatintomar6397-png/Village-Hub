@@ -108,7 +108,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkAPI = async () => {
         if (_apiOnline !== null) return _apiOnline;
         try {
-            const resp = await fetch(window.location.origin + '/api/stats');
+            const baseUrl = (window.API_BASE_URL && window.API_BASE_URL.trim())
+                ? window.API_BASE_URL.trim().replace(/\/+$/, '')
+                : window.location.origin;
+            const resp = await fetch(baseUrl + '/api/stats');
             _apiOnline = resp.ok;
         } catch {
             _apiOnline = false;
@@ -253,8 +256,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (loginForm) {
+            let isLoginSubmitting = false;
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                if (isLoginSubmitting) return;
+                const submitBtn = loginForm.querySelector('button[type="submit"]');
+                const origText = submitBtn ? submitBtn.textContent : 'Login';
+                if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Logging in...'; }
+                isLoginSubmitting = true;
+
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
                 try {
@@ -264,13 +274,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => window.location.reload(), 500);
                 } catch (err) {
                     Toast.error(err.message || 'Login failed');
+                } finally {
+                    isLoginSubmitting = false;
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origText; }
                 }
             });
         }
 
         if (signupForm) {
+            let isSignupSubmitting = false;
             signupForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                if (isSignupSubmitting) return;
+                const submitBtn = signupForm.querySelector('button[type="submit"]');
+                const origText = submitBtn ? submitBtn.textContent : 'Create Account';
+                if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Creating Account...'; }
+                isSignupSubmitting = true;
+
                 const name = document.getElementById('signup-name').value;
                 const email = document.getElementById('signup-email').value;
                 const password = document.getElementById('signup-password').value;
@@ -281,6 +301,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => window.location.reload(), 500);
                 } catch (err) {
                     Toast.error(err.message || 'Signup failed');
+                } finally {
+                    isSignupSubmitting = false;
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origText; }
                 }
             });
         }
@@ -340,8 +363,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (submitBtn) submitBtn.textContent = 'Login as Admin';
         }
 
+        let isLockSubmitting = false;
         lockForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (isLockSubmitting) return;
+            const submitBtn = lockForm.querySelector('button[type="submit"]');
+            const origText = submitBtn ? submitBtn.textContent : 'Login as Admin';
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Verifying...'; }
+            isLockSubmitting = true;
+
             const email = document.getElementById('admin-email-input')?.value;
             const password = document.getElementById('admin-password-input')?.value;
 
@@ -364,6 +394,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     passcodeError.textContent = err.message || 'Invalid credentials';
                     passcodeError.style.display = 'block';
                 }
+            } finally {
+                isLockSubmitting = false;
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origText; }
             }
         });
     }

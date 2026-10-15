@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/villages", "destination": "/villages.html" },
+    { "source": "/complaint", "destination": "/complaint.html" },
+    { "source": "/dashboard", "destination": "/dashboard.html" },
+    { "source": "/schemes", "destination": "/schemes.html" },
+    { "source": "/map", "destination": "/map.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/register", "destination": "/register.html" },
+    { "source": "/benefits", "destination": "/benefits.html" },
+    { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/((?!api/.*).*)", "destination": "/$1" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" }
+      ]
+    }
+  ]
+}

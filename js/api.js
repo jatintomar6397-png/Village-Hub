@@ -52,7 +52,10 @@
             if (!path.startsWith('/api')) {
                 path = '/api' + path;
             }
-            const url = window.location.origin + path;
+            const baseUrl = (window.API_BASE_URL && window.API_BASE_URL.trim())
+                ? window.API_BASE_URL.trim().replace(/\/+$/, '')
+                : window.location.origin;
+            const url = baseUrl + path;
             
             const headers = {
                 'Content-Type': 'application/json',
