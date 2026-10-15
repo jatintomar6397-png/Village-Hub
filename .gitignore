@@ -1,13 +1,15 @@
 # Dependencies
 node_modules/
 package-lock.json
+jspm_packages/
+web_modules/
 
-# Environment variables & secrets
+# Environment variables & secrets (CRITICAL: Never commit secrets)
 .env
 .env.*
 !.env.example
 
-# Backups and temporary files
+# Backups and private citizen/user data
 *.bak
 *.tmp
 server/data_backup/
@@ -16,13 +18,44 @@ server/data/complaints.json
 server/data/applications.json
 report_temp.html
 
-# Logs
+# Logs & Diagnostics
+logs
 *.log
 npm-debug.log*
 yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Build & Cache directories
+.cache
+.parcel-cache
+.next
+out
+.nuxt
+dist
+.output
+.temp
+.svelte-kit/
+**/.vitepress/dist
+**/.vitepress/cache
+.docusaurus
+.serverless/
+.fusebox/
+.dynamodb/
+.firebase/
+.turbo
+.vite/
 
 # OS and Editor files
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+.vscode-test
