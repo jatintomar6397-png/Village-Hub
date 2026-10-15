@@ -9,4 +9,4 @@
  * Leave window.API_BASE_URL as '' (empty string), and requests will default
  * to window.location.origin.
  */
-window.API_BASE_URL = window.API_BASE_URL || '';
+window.API_BASE_URL = window.API_BASE_URL || 'https://village-hub-api.onrender.com';

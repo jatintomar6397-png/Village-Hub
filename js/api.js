@@ -48,13 +48,16 @@
 
         // --- HTTP Helper ---
         async request(endpoint, options = {}) {
-            let path = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
-            if (!path.startsWith('/api')) {
-                path = '/api' + path;
-            }
-            const baseUrl = (window.API_BASE_URL && window.API_BASE_URL.trim())
+            let baseUrl = (window.API_BASE_URL && window.API_BASE_URL.trim())
                 ? window.API_BASE_URL.trim().replace(/\/+$/, '')
                 : window.location.origin;
+            if (baseUrl.endsWith('/api')) {
+                baseUrl = baseUrl.slice(0, -4);
+            }
+            let path = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+            if (!path.startsWith('/api/') && path !== '/api') {
+                path = '/api' + path;
+            }
             const url = baseUrl + path;
             
             const headers = {
