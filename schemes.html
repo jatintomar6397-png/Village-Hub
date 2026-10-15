@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Government Rural Schemes | Village Hub</title>
+    <meta name="description" content="Explore official UP and Central Government schemes for rural development, Jal Jeevan Mission, PM Awas Yojana, PM Kisan, solar subsidies, and step-by-step application guidelines.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet with Cache Busting -->
+    <link rel="stylesheet" href="styles.css?v=4.0">
+    <style>
+        svg { max-width: 24px !important; max-height: 24px !important; width: 24px !important; height: 24px !important; flex-shrink: 0 !important; }
+        svg.search-icon { width: 20px !important; height: 20px !important; max-width: 20px !important; max-height: 20px !important; }
+    </style>
+</head>
+<body>
+    <!-- Background Gradient Glows -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo-link">
+                    <span class="logo-init">VH</span>
+                    <span class="brand-name"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+                </a>
+            </div>
+            <nav class="nav-middle">
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="schemes.html" class="active">Govt Schemes</a></li>
+                    <li><a href="register.html">Register</a></li>
+                    <li><a href="villages.html">Villages List</a></li>
+                    <li><a href="complaint.html">Register Complaint</a></li>
+                </ul>
+            </nav>
+            <div class="nav-right">
+                <button class="hamburger-btn" id="hamburger-btn" title="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Light/Dark Theme">
+                    <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25m-13.5 0H3m15.364-6.364l-1.591 1.591M6.561 17.439l-1.591 1.591m12.728 0l-1.591-1.591M6.561 6.561L4.97 4.97M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+                    </svg>
+                </button>
+                <button class="btn btn-secondary nav-login-btn" id="open-auth-modal">Login / Signup</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hamburger Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <!-- Sidebar Menu -->
+    <div class="sidebar-menu" id="sidebar-menu">
+        <div class="sidebar-header">
+            <span class="logo-init">VH</span>
+            <span class="brand-name"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+        </div>
+                <ul class="sidebar-links">
+            <li><a href="dashboard.html"><span class="sidebar-icon">📊</span> Dashboard</a></li>
+            <li><a href="map.html"><span class="sidebar-icon">🗺️</span> Live Map</a></li>
+            <li><a href="admin.html"><span class="sidebar-icon">🔒</span> Admin Panel</a></li>
+            <li><a href="benefits.html"><span class="sidebar-icon">🎯</span> Benefits</a></li>
+            <li><a href="terms.html"><span class="sidebar-icon">📜</span> Terms</a></li>
+        </ul>
+    </div>
+
+    <main>
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="section-container">
+                <div class="breadcrumb">
+                    <a href="index.html">Home</a> &bull; <span>Government Schemes</span>
+                </div>
+                <h1>Government Schemes & Rural Welfare Finder</h1>
+                <p>Complete official guide to UP State & Central Government rural schemes, eligibility criteria, step-by-step application instructions, required documents, and direct application portals.</p>
+            </div>
+        </section>
+
+        <!-- Interactive Need Selection Wizard -->
+        <section class="section" style="padding-top: 1rem;">
+            <div class="section-container">
+                <div class="need-wizard-card">
+                    <div style="text-align: center;">
+                        <span class="scheme-badge" style="background: var(--accent-light); color: var(--accent);">SMART SCHEME FINDER</span>
+                        <h2 style="font-family: var(--font-serif); font-size: 1.8rem; margin-top: 0.5rem;">What is Your Current Village Need?</h2>
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">Select your primary requirement below to automatically match and view relevant Government Welfare Schemes:</p>
+                    </div>
+
+                    <div class="need-wizard-grid">
+                        <div class="need-select-box" data-need="Water">
+                            <span class="need-select-icon">💧</span>
+                            <strong style="color: var(--text-primary); display: block; font-size: 0.95rem;">Clean Water & Sewage</strong>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Tap connections, RO, Ponds</span>
+                        </div>
+                        <div class="need-select-box" data-need="Housing">
+                            <span class="need-select-icon">🏠</span>
+                            <strong style="color: var(--text-primary); display: block; font-size: 0.95rem;">Housing & Toilets</strong>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">PMAY Pucca House & IHHL</span>
+                        </div>
+                        <div class="need-select-box" data-need="Farmers">
+                            <span class="need-select-icon">🌾</span>
+                            <strong style="color: var(--text-primary); display: block; font-size: 0.95rem;">Farmers & Agriculture</strong>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">₹6k/yr income & Kisan credit</span>
+                        </div>
+                        <div class="need-select-box" data-need="Solar">
+                            <span class="need-select-icon">☀️</span>
+                            <strong style="color: var(--text-primary); display: block; font-size: 0.95rem;">Solar & Free Electricity</strong>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Rooftop Solar & KUSUM Pumps</span>
+                        </div>
+                        <div class="need-select-box" data-need="Employment">
+                            <span class="need-select-icon">💼</span>
+                            <strong style="color: var(--text-primary); display: block; font-size: 0.95rem;">Jobs & Artisan Loans</strong>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">MGNREGA 100 days & Vishwakarma</span>
+                        </div>
+                        <div class="need-select-box" data-need="Health">
+                            <span class="need-select-icon">🩺</span>
+                            <strong style="color: var(--text-primary); display: block; font-size: 0.95rem;">Health & Pension</strong>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">₹5 Lakh Ayushman card & Pension</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Pills and Search Bar -->
+                <div style="margin-bottom: 2rem;">
+                    <div style="max-width: 600px; margin: 0 auto 1.5rem auto;">
+                        <div class="search-bar-container">
+                            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                            </svg>
+                            <input type="text" id="scheme-search-input" class="search-input" placeholder="Search government schemes by name, keyword (e.g., Awas, Water, Solar, Pension)...">
+                        </div>
+                    </div>
+
+                    <div class="schemes-filter-wrapper">
+                        <button class="scheme-filter-pill active" data-cat="all">All Schemes</button>
+                        <button class="scheme-filter-pill" data-cat="Water">💧 Water & Sanitation</button>
+                        <button class="scheme-filter-pill" data-cat="Housing">🏠 Housing & Infrastructure</button>
+                        <button class="scheme-filter-pill" data-cat="Farmers">🌾 Farmers & Agriculture</button>
+                        <button class="scheme-filter-pill" data-cat="Solar">☀️ Solar & Energy</button>
+                        <button class="scheme-filter-pill" data-cat="Employment">💼 Employment & Artisans</button>
+                        <button class="scheme-filter-pill" data-cat="Health">🩺 Health & Welfare</button>
+                    </div>
+                </div>
+
+                <!-- Schemes Cards Directory Grid -->
+                <div class="schemes-container-grid" id="schemes-list-container">
+                    <!-- Dynamic Scheme Cards Rendered via JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="section-container">
+            <div class="footer-bottom" style="text-align: center;">
+                <p>&copy; 2026 Village Hub Initiative. Dedicated to transparent rural development across Hapur, Ghaziabad, Meerut, Bulandshahr, Noida, and Greater Noida.</p>
+                <div style="margin-top: 1rem;">
+                    <a href="https://jansunwai.up.nic.in/" target="_blank" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.4rem 1rem;">🏛️ UP Govt Jansunwai Portal (1076)</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="app.js?v=4.0"></script>
+</body>
+</html>

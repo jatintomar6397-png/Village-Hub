@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Complaint | UP Rural Grievance Redressal | Village Hub</title>
+    <meta name="description" content="Register official village infrastructure complaints, upload issue photos, and track grievance resolution across Uttar Pradesh. Direct integration with UP Government Jansunwai IGRS Portal details.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet with Cache-Busting -->
+    <link rel="stylesheet" href="styles.css?v=4.0">
+    <style>
+        svg { max-width: 20px !important; max-height: 20px !important; width: 20px !important; height: 20px !important; flex-shrink: 0 !important; }
+        . Jansunwai-card {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(30, 58, 138, 0.25) 100%);
+            border: 1px solid var(--accent);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-top: 3rem;
+        }
+        .jansunwai-badge {
+            background: var(--accent);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 9999px;
+            display: inline-block;
+            margin-bottom: 0.75rem;
+        }
+        .helpline-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .helpline-box {
+            background: var(--bg-tertiary);
+            padding: 1.25rem;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+        }
+        .helpline-num {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--accent);
+            font-family: var(--font-serif);
+        }
+        #image-preview-container {
+            display: none;
+            margin-top: 0.75rem;
+            max-width: 220px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+        }
+        #image-preview-img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Gradient Glows -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo-link">
+                    <span class="logo-init">VH</span>
+                    <span class="brand-name"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+                </a>
+            </div>
+            <nav class="nav-middle">
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="schemes.html">Govt Schemes</a></li>
+                    <li><a href="register.html">Register</a></li>
+                    <li><a href="villages.html">Villages List</a></li>
+                    <li><a href="complaint.html" class="active">Register Complaint</a></li>
+                </ul>
+            </nav>
+            <div class="nav-right">
+                                <button class="hamburger-btn" id="hamburger-btn" title="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Light/Dark Theme">
+                    <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25m-13.5 0H3m15.364-6.364l-1.591 1.591M6.561 17.439l-1.591 1.591m12.728 0l-1.591-1.591M6.561 6.561L4.97 4.97M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+                    </svg>
+                </button>
+                <button class="btn btn-secondary nav-login-btn" id="open-auth-modal">Login / Signup</button>
+            </div>
+        </div>
+    </header>
+    <!-- Hamburger Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <!-- Sidebar Menu -->
+    <div class="sidebar-menu" id="sidebar-menu">
+        <div class="sidebar-header">
+            <span class="logo-init">VH</span>
+            <span class="brand-name"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+        </div>
+                        <ul class="sidebar-links">
+            <li><a href="dashboard.html"><span class="sidebar-icon">📊</span> Dashboard</a></li>
+            <li><a href="map.html"><span class="sidebar-icon">🗺️</span> Live Map</a></li>
+            <li><a href="admin.html"><span class="sidebar-icon">🔒</span> Admin Panel</a></li>
+            <li><a href="benefits.html"><span class="sidebar-icon">🎯</span> Benefits</a></li>
+            <li><a href="terms.html"><span class="sidebar-icon">📜</span> Terms</a></li>
+        </ul>
+    </div>
+
+    <main>
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="section-container">
+                <div class="breadcrumb">
+                    <a href="index.html">Home</a> &bull; <span>Register Complaint</span>
+                </div>
+                <h1>Register Citizen Complaint / Grievance</h1>
+                <p>Report official village infrastructure problems, water leakages, road damage, or power issues directly to Village Hub and UP Government monitoring portals.</p>
+            </div>
+        </section>
+
+        <!-- Complaint Form Section -->
+        <section class="section">
+            <div class="section-container">
+                <div class="register-card glass-card">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <h2 style="font-family: var(--font-serif); font-size: 2rem;">Official Village Grievance Filing</h2>
+                        <p style="font-size: 0.9rem; color: var(--text-muted);">Please provide accurate village details and attach a clear photo of the problem for rapid verification.</p>
+                    </div>
+
+                    <form id="complaint-form" class="custom-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="comp-name">Complainant Full Name *</label>
+                                <input type="text" id="comp-name" required placeholder="e.g. Ramesh Kumar">
+                            </div>
+                            <div class="form-group">
+                                <label for="comp-phone">Mobile Number (+91) *</label>
+                                <input type="tel" id="comp-phone" required placeholder="e.g. +91 9876543210">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="comp-district">District of Uttar Pradesh *</label>
+                                <select id="comp-district" required>
+                                    <option value="" disabled selected>Select District</option>
+                                    <option value="Hapur">Hapur</option>
+                                    <option value="Ghaziabad">Ghaziabad</option>
+                                    <option value="Meerut">Meerut</option>
+                                    <option value="Bulandshahr">Bulandshahr</option>
+                                    <option value="Gautam Buddha Nagar (Noida)">Gautam Buddha Nagar (Noida)</option>
+                                    <option value="Greater Noida">Greater Noida</option>
+                                    <option value="Other UP District">Other District of Uttar Pradesh</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="comp-tehsil">Tehsil / Block *</label>
+                                <input type="text" id="comp-tehsil" required placeholder="e.g. Dhaulana / Garhmukteshwar / Modi Nagar">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="comp-village">Village Name *</label>
+                                <input type="text" id="comp-village" required placeholder="e.g. Lakhan / Galand / Dasna / Khera">
+                            </div>
+                            <div class="form-group">
+                                <label for="comp-category">Official Problem Category *</label>
+                                <select id="comp-category" required>
+                                    <option value="" disabled selected>Select Infrastructure Category</option>
+                                    <option value="Clean Drinking Water & RO Plant">Clean Drinking Water & Jal Jeevan Mission</option>
+                                    <option value="Sewage & Underground Drainage">Sewage & Underground Drainage</option>
+                                    <option value="Solar Streetlighting & Power Grid">Solar Streetlighting & Power Grid</option>
+                                    <option value="Road Connectivity & Potholes (PMGSY)">Road Connectivity & Potholes (PMGSY)</option>
+                                    <option value="Primary Healthcare Sub-Center">Primary Healthcare Sub-Center & Ambulance</option>
+                                    <option value="School Building & Digital Education">School Building & Digital Education</option>
+                                    <option value="Solid Waste Management">Solid Waste Management & Sanitation</option>
+                                    <option value="Amrit Sarovar Pond Rejuvenation">Amrit Sarovar Pond Rejuvenation & Agriculture</option>
+                                    <option value="Others">Others (Specify Below)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Other Problem Input (shown only when "Others" selected) -->
+                        <div class="form-group" id="other-problem-group" style="display: none;">
+                            <label for="comp-other-problem">Specify Your Problem Category *</label>
+                            <input type="text" id="comp-other-problem" placeholder="e.g. Stray Animals, Land Dispute, Pension Issue, Ration Card Problem, etc.">
+                        </div>
+
+                        <!-- Image Upload Section -->
+                        <div class="form-group">
+                            <label for="comp-image">Upload Photo of the Problem (Optional)</label>
+                            <input type="file" id="comp-image" accept="image/*" style="padding: 0.5rem; background: var(--bg-tertiary);">
+                            <div id="image-preview-container">
+                                <img id="image-preview-img" src="" alt="Issue Preview">
+                            </div>
+                        </div>
+
+                        <!-- Detailed Review of Problem -->
+                        <div class="form-group">
+                            <label for="comp-details">Detailed Review of Problem Section *</label>
+                            <textarea id="comp-details" rows="5" required placeholder="Provide a detailed review of the problem (e.g. Exact location in village, duration of issue, number of affected households)..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">Submit Complaint on Village Hub</button>
+
+                        <!-- Submission Success -->
+                        <div class="success-message" id="comp-success">
+                            <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="success-icon">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                            <span>🎉 Your complaint has been registered successfully! Thank you for helping improve your village. We will look into it shortly.</span>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Complaint Status Tracking Section -->
+                <div class="complaint-tracker-box glass-card" id="complaint-tracker-section">
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <span class="status-badge status-progress" style="margin-bottom: 0.5rem; display: inline-block;">LIVE RESOLUTION TRACKER</span>
+                        <h2 style="font-family: var(--font-serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Track Your Complaint Status</h2>
+                        <p style="font-size: 0.9rem; color: var(--text-muted);">Enter your Complaint ID (e.g. CMP-1234) or your registered 10-digit mobile number to view live progress.</p>
+                    </div>
+                    <div class="tracker-search-row">
+                        <input type="text" id="tracker-input" placeholder="Enter Complaint ID (CMP-XXXX) or Mobile Number...">
+                        <button type="button" id="tracker-search-btn" class="btn btn-primary">Track Status</button>
+                    </div>
+                    <div id="tracker-results"></div>
+                </div>
+
+                <!-- UP Government Jansunwai Portal Information Section -->
+                <div class="Jansunwai-card glass-card">
+                    <span class="jansunwai-badge">OFFICIAL GOVT ESCALATION PORTAL</span>
+                    <h2 style="font-family: var(--font-serif); font-size: 1.8rem; margin-bottom: 0.5rem;">UP Government Jansunwai (Samadhan) Portal Details</h2>
+                    <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7;">
+                        If your village grievance remains unresolved by local authorities, citizens can directly register and escalate complaints on the official <strong>Integrated Grievance Redressal System (IGRS Jansunwai UP)</strong> monitored directly by the Chief Minister's Office, Government of Uttar Pradesh.
+                    </p>
+
+                    <div class="helpline-grid">
+                        <div class="helpline-box">
+                            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">CM Helpline Number</div>
+                            <div class="helpline-num">1076</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Direct CM Toll-Free Helpline</div>
+                        </div>
+                        <div class="helpline-box">
+                            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Women Helpline</div>
+                            <div class="helpline-num">1090</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">24x7 Women Safety Line</div>
+                        </div>
+                        <div class="helpline-box">
+                            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Citizen Emergency</div>
+                            <div class="helpline-num">112</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">UP Police & Emergency Response</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: 1.5rem; background: var(--bg-tertiary); padding: 1.25rem 1.5rem; border-radius: 12px; border: 1px solid var(--glass-border);">
+                        <div>
+                            <strong style="color: var(--text-primary); font-size: 1rem;">Official Portal Web Address:</strong>
+                            <p style="font-size: 0.85rem; color: var(--accent);">https://jansunwai.up.nic.in/</p>
+                        </div>
+                        <a href="https://jansunwai.up.nic.in/" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.6rem 1.4rem;">
+                            Visit UP Jansunwai Portal &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-left">
+                <span class="footer-brand"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+                <p>&copy; 2026 Village Hub Community Initiative. All rights reserved. UP Panchayati Raj & Rural Development Partner.</p>
+                <ul class="footer-nav">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="schemes.html">Govt Schemes</a></li>
+                    <li><a href="register.html">Register</a></li>
+                    <li><a href="villages.html">Villages List</a></li>
+                    <li><a href="complaint.html">Register Complaint</a></li>
+                </ul>
+            </div>
+            <div class="footer-right">
+                <a href="https://jansunwai.up.nic.in/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size:0.8rem; padding:0.5rem 1rem;">
+                    UP Jansunwai Portal 1076
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal-content glass-card">
+            <button class="modal-close" id="close-auth-modal">
+                <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+            </button>
+            <div class="modal-tabs">
+                <button class="modal-tab active" id="tab-login">Login</button>
+                <button class="modal-tab" id="tab-signup">Signup</button>
+            </div>
+            <form id="login-form" class="modal-form active">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" required placeholder="your.email@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Log In to Village Hub</button>
+            </form>
+            <form id="signup-form" class="modal-form">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" required placeholder="Rahul Sharma">
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email Address</label>
+                    <input type="email" id="signup-email" required placeholder="your.email@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" required placeholder="Min 8 characters">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

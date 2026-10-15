@@ -1,0 +1,21 @@
+{
+  "name": "village-hub",
+  "version": "1.0.0",
+  "description": "Village Hub - Web-Based Rural Community & Development Platform",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node server/server.js",
+    "seed": "node server/utils/seedRunner.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "mongoose": "^8.8.0",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "express-rate-limit": "^7.4.1",
+    "multer": "^1.4.5-lts.1"
+  }
+}

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Map | Village Hub</title>
+    <meta name="description" content="Interactive geospatial map tracking rural infrastructure projects, water supply lines, and solar electrification across 46+ Western UP villages.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Main Stylesheet with Cache Busting -->
+    <link rel="stylesheet" href="styles.css?v=4.0">
+    <style>
+        svg { max-width: 24px !important; max-height: 24px !important; width: 24px !important; height: 24px !important; flex-shrink: 0 !important; }
+    </style>
+</head>
+<body>
+    <!-- Background Gradient Glows -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo-link">
+                    <span class="logo-init">VH</span>
+                    <span class="brand-name"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+                </a>
+            </div>
+            <nav class="nav-middle">
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="schemes.html">Govt Schemes</a></li>
+                    <li><a href="register.html">Register</a></li>
+                    <li><a href="villages.html">Villages List</a></li>
+                    <li><a href="complaint.html">Register Complaint</a></li>
+                </ul>
+            </nav>
+            <div class="nav-right">
+                <button class="hamburger-btn" id="hamburger-btn" title="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Light/Dark Theme">
+                    <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25m-13.5 0H3m15.364-6.364l-1.591 1.591M6.561 17.439l-1.591 1.591m12.728 0l-1.591-1.591M6.561 6.561L4.97 4.97M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+                    </svg>
+                </button>
+                <button class="btn btn-secondary nav-login-btn" id="open-auth-modal">Login / Signup</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hamburger Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <!-- Sidebar Menu -->
+    <div class="sidebar-menu" id="sidebar-menu">
+        <div class="sidebar-header">
+            <span class="logo-init">VH</span>
+            <span class="brand-name"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+        </div>
+                <ul class="sidebar-links">
+            <li><a href="dashboard.html"><span class="sidebar-icon">📊</span> Dashboard</a></li>
+            <li><a href="map.html"><span class="sidebar-icon">🗺️</span> Live Map</a></li>
+            <li><a href="admin.html"><span class="sidebar-icon">🔒</span> Admin Panel</a></li>
+            <li><a href="benefits.html"><span class="sidebar-icon">🎯</span> Benefits</a></li>
+            <li><a href="terms.html"><span class="sidebar-icon">📜</span> Terms</a></li>
+        </ul>
+    </div>
+
+    <main>
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="section-container">
+                <div class="breadcrumb">
+                    <a href="index.html">Home</a> &bull; <span>Live Map</span>
+                </div>
+                <h1>Western UP Interactive Village Map</h1>
+                <p>Real-time geographic visualization of 46+ census-verified villages across Hapur, Ghaziabad, Meerut, Bulandshahr, Noida, and Greater Noida. Click any village marker to inspect ongoing infrastructure projects and census population.</p>
+            </div>
+        </section>
+
+        <!-- Map Container Section -->
+        <section class="section map-section" style="padding-top: 1rem;">
+            <div class="section-container">
+                <div class="map-container glass-card" id="village-map" style="height: 560px;"></div>
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.5rem; justify-content: center;">
+                    <div style="background: var(--bg-secondary); padding: 0.6rem 1.2rem; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; color: var(--text-secondary);">
+                        <strong style="color: #f59e0b;">● Hapur:</strong> 12 Villages
+                    </div>
+                    <div style="background: var(--bg-secondary); padding: 0.6rem 1.2rem; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; color: var(--text-secondary);">
+                        <strong style="color: #3b82f6;">● Ghaziabad:</strong> 8 Villages
+                    </div>
+                    <div style="background: var(--bg-secondary); padding: 0.6rem 1.2rem; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; color: var(--text-secondary);">
+                        <strong style="color: #10b981;">● Meerut:</strong> 8 Villages
+                    </div>
+                    <div style="background: var(--bg-secondary); padding: 0.6rem 1.2rem; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; color: var(--text-secondary);">
+                        <strong style="color: #ec4899;">● Bulandshahr:</strong> 7 Villages
+                    </div>
+                    <div style="background: var(--bg-secondary); padding: 0.6rem 1.2rem; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; color: var(--text-secondary);">
+                        <strong style="color: #8b5cf6;">● Noida:</strong> 5 Villages
+                    </div>
+                    <div style="background: var(--bg-secondary); padding: 0.6rem 1.2rem; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; color: var(--text-secondary);">
+                        <strong style="color: #06b6d4;">● Greater Noida:</strong> 6 Villages
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="section-container">
+            <div class="footer-bottom" style="text-align: center;">
+                <p>&copy; 2026 Village Hub Initiative. Dedicated to transparent rural development across Hapur, Ghaziabad, Meerut, Bulandshahr, Noida, and Greater Noida.</p>
+                <div style="margin-top: 1rem;">
+                    <a href="https://jansunwai.up.nic.in/" target="_blank" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.4rem 1rem;">🏛️ UP Govt Jansunwai Portal (1076)</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/api.js"></script>
+    <script src="app.js?v=4.0"></script>
+</body>
+</html>
