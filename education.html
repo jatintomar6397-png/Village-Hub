@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Education & Healthcare | Village Hub</title>
+    <meta name="description" content="Education and healthcare information for Western UP villages. School statistics from UDISE+ and healthcare facility data from UP Health Department.">
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=5.0">
+</head>
+<body>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div id="toast-container" class="toast-container"></div>
+
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo-link">
+                    <img src="assets/logo.png" alt="Village Hub Logo" class="nav-logo-img">
+                    <span class="brand-name"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+                </a>
+            </div>
+            <nav class="nav-middle">
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="schemes.html">Govt Schemes</a></li>
+                    <li><a href="kisan.html">Kisan Corner</a></li>
+                    <li><a href="education.html" class="active">Education</a></li>
+                    <li><a href="panchayat-funds.html">Panchayat Funds</a></li>
+                </ul>
+            </nav>
+            <div class="nav-right">
+                <button class="hamburger-btn" id="hamburger-btn" title="Menu"><span></span><span></span><span></span></button>
+                <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Light/Dark Theme">
+                    <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25m-13.5 0H3m15.364-6.364l-1.591 1.591M6.561 17.439l-1.591 1.591m12.728 0l-1.591-1.591M6.561 6.561L4.97 4.97M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" /></svg>
+                </button>
+                <button class="btn btn-secondary nav-login-btn" id="open-auth-modal">Login / Signup</button>
+            </div>
+        </div>
+    </header>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="sidebar-menu" id="sidebar-menu">
+        <div class="sidebar-header">
+            <img src="assets/logo.png" alt="Village Hub" class="sidebar-logo-img">
+            <span class="brand-name"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+        </div>
+        <ul class="sidebar-links">
+            <li><a href="dashboard.html"><span class="sidebar-icon">📊</span> Dashboard</a></li>
+            <li><a href="map.html"><span class="sidebar-icon">🗺️</span> Live Map</a></li>
+            <li><a href="kisan.html"><span class="sidebar-icon">🌾</span> Kisan Corner</a></li>
+            <li><a href="education.html" class="active"><span class="sidebar-icon">🏫</span> Education & Health</a></li>
+            <li><a href="panchayat-funds.html"><span class="sidebar-icon">💰</span> Panchayat Funds</a></li>
+            <li><a href="admin.html"><span class="sidebar-icon">🔒</span> Admin Panel</a></li>
+            <li><a href="villages.html"><span class="sidebar-icon">🏘️</span> Villages</a></li>
+            <li><a href="complaint.html"><span class="sidebar-icon">📝</span> Complaints</a></li>
+        </ul>
+    </div>
+
+    <main>
+        <section class="page-header">
+            <div class="section-container">
+                <div class="breadcrumb"><a href="index.html">Home</a> &bull; <span>Education & Healthcare</span></div>
+                <h1>🏫 Education & Healthcare</h1>
+                <p>School enrolment statistics and healthcare facility information for Western UP. Data sourced from UDISE+ and UP Health Department official records.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-container">
+                <div class="module-tabs" id="edu-tabs">
+                    <button class="module-tab-btn active" data-tab="schools">🎓 School Information</button>
+                    <button class="module-tab-btn" data-tab="healthcare">🏥 Healthcare Facilities</button>
+                </div>
+
+                <!-- Schools Panel -->
+                <div class="module-panel active" id="panel-schools">
+                    <div class="glass-card module-card">
+                        <div class="module-card-header">
+                            <h2>School Information — Western UP</h2>
+                            <div class="module-filters">
+                                <select id="school-filter-district" class="module-select">
+                                    <option value="">All Districts</option>
+                                    <option value="Hapur">Hapur</option><option value="Ghaziabad">Ghaziabad</option>
+                                    <option value="Meerut">Meerut</option><option value="Bulandshahr">Bulandshahr</option>
+                                    <option value="Noida">Noida</option><option value="Greater Noida">Greater Noida</option>
+                                </select>
+                                <select id="school-filter-type" class="module-select">
+                                    <option value="">All Types</option>
+                                    <option value="Government">Government</option>
+                                    <option value="Private">Private</option>
+                                    <option value="Aided">Aided</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="schools-content">
+                            <div class="module-empty-state">
+                                <div class="empty-icon">🎓</div>
+                                <h3>School Information</h3>
+                                <p>No school records available yet. Data will appear here once imported by an administrator from official UDISE+ datasets.</p>
+                                <p class="geo-disclaimer">⚠️ Statistics clearly identify whether they cover a Village, Block, or District. Village-level data is shown only when officially published.</p>
+                                <a href="https://udiseplus.gov.in/" target="_blank" class="btn btn-outline" style="margin-top:1rem;">Visit UDISE+ Portal →</a>
+                            </div>
+                        </div>
+                        <div class="module-source-footer">
+                            <span>Source: UDISE+ (Unified District Information System for Education Plus)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Healthcare Panel -->
+                <div class="module-panel" id="panel-healthcare">
+                    <div class="glass-card module-card">
+                        <div class="module-card-header">
+                            <h2>Healthcare Facilities — Western UP</h2>
+                            <div class="module-filters">
+                                <select id="health-filter-district" class="module-select">
+                                    <option value="">All Districts</option>
+                                    <option value="Hapur">Hapur</option><option value="Ghaziabad">Ghaziabad</option>
+                                    <option value="Meerut">Meerut</option><option value="Bulandshahr">Bulandshahr</option>
+                                    <option value="Noida">Noida</option><option value="Greater Noida">Greater Noida</option>
+                                </select>
+                                <select id="health-filter-type" class="module-select">
+                                    <option value="">All Types</option>
+                                    <option value="PHC">PHC</option><option value="CHC">CHC</option>
+                                    <option value="Sub-Centre">Sub-Centre</option><option value="District Hospital">District Hospital</option>
+                                    <option value="Government Hospital">Govt Hospital</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="healthcare-content">
+                            <div class="module-empty-state">
+                                <div class="empty-icon">🏥</div>
+                                <h3>Healthcare Facility Data</h3>
+                                <p>No healthcare facility records available yet. Data will appear here once imported by an administrator from official UP Health Department records.</p>
+                                <p class="geo-disclaimer">⚠️ Facility operational status is shown only when confirmed by a reliable source. Unverified facilities are clearly marked.</p>
+                                <a href="https://uphealth.up.nic.in/" target="_blank" class="btn btn-outline" style="margin-top:1rem;">Visit UP Health Department →</a>
+                            </div>
+                        </div>
+                        <div class="module-source-footer">
+                            <span>Source: UP Health Department, National Health Mission (NHM)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-left">
+                <span class="footer-brand"><img src="assets/logo.png" alt="Village Hub" class="footer-logo-img"> <span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+                <p>&copy; 2026 Village Hub Community Initiative. All rights reserved.</p>
+                <ul class="footer-nav">
+                    <li><a href="index.html">Home</a></li><li><a href="kisan.html">Kisan Corner</a></li>
+                    <li><a href="education.html">Education</a></li><li><a href="panchayat-funds.html">Panchayat Funds</a></li>
+                    <li><a href="villages.html">Villages</a></li><li><a href="complaint.html">Complaints</a></li>
+                </ul>
+            </div>
+            <div class="footer-right">
+                <a href="https://jansunwai.up.nic.in/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size:0.8rem; padding:0.5rem 1rem;">UP Jansunwai Portal 1076</a>
+            </div>
+        </div>
+    </footer>
+
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal-content glass-card">
+            <button class="modal-close" id="close-auth-modal"><svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg></button>
+            <div class="modal-tabs"><button class="modal-tab active" id="tab-login">Login</button><button class="modal-tab" id="tab-signup">Signup</button></div>
+            <form id="login-form" class="modal-form active"><div class="form-group"><label for="login-email">Email</label><input type="email" id="login-email" required placeholder="your.email@example.com"></div><div class="form-group"><label for="login-password">Password</label><input type="password" id="login-password" required placeholder="••••••••"></div><button type="submit" class="btn btn-primary btn-block">Log In</button></form>
+            <form id="signup-form" class="modal-form"><div class="form-group"><label for="signup-name">Full Name</label><input type="text" id="signup-name" required placeholder="Rahul Sharma"></div><div class="form-group"><label for="signup-email">Email</label><input type="email" id="signup-email" required placeholder="your.email@example.com"></div><div class="form-group"><label for="signup-password">Password</label><input type="password" id="signup-password" required placeholder="Min 8 characters"></div><button type="submit" class="btn btn-primary btn-block">Create Account</button></form>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="app.js"></script>
+    <script src="js/modules.js"></script>
+</body>
+</html>

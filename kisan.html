@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kisan Corner — Agricultural Info | Village Hub</title>
+    <meta name="description" content="Kisan Corner: Seasonal crop calendar, mandi prices, weather advisories and crop production statistics for Western Uttar Pradesh farmers.">
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=5.0">
+</head>
+<body>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Navigation -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo-link">
+                    <img src="assets/logo.png" alt="Village Hub Logo" class="nav-logo-img">
+                    <span class="brand-name"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+                </a>
+            </div>
+            <nav class="nav-middle">
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="schemes.html">Govt Schemes</a></li>
+                    <li><a href="kisan.html" class="active">Kisan Corner</a></li>
+                    <li><a href="education.html">Education</a></li>
+                    <li><a href="panchayat-funds.html">Panchayat Funds</a></li>
+                </ul>
+            </nav>
+            <div class="nav-right">
+                <button class="hamburger-btn" id="hamburger-btn" title="Menu"><span></span><span></span><span></span></button>
+                <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Light/Dark Theme">
+                    <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25m-13.5 0H3m15.364-6.364l-1.591 1.591M6.561 17.439l-1.591 1.591m12.728 0l-1.591-1.591M6.561 6.561L4.97 4.97M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" /></svg>
+                </button>
+                <button class="btn btn-secondary nav-login-btn" id="open-auth-modal">Login / Signup</button>
+            </div>
+        </div>
+    </header>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="sidebar-menu" id="sidebar-menu">
+        <div class="sidebar-header">
+            <img src="assets/logo.png" alt="Village Hub" class="sidebar-logo-img">
+            <span class="brand-name"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+        </div>
+        <ul class="sidebar-links">
+            <li><a href="dashboard.html"><span class="sidebar-icon">📊</span> Dashboard</a></li>
+            <li><a href="map.html"><span class="sidebar-icon">🗺️</span> Live Map</a></li>
+            <li><a href="kisan.html" class="active"><span class="sidebar-icon">🌾</span> Kisan Corner</a></li>
+            <li><a href="education.html"><span class="sidebar-icon">🏫</span> Education & Health</a></li>
+            <li><a href="panchayat-funds.html"><span class="sidebar-icon">💰</span> Panchayat Funds</a></li>
+            <li><a href="admin.html"><span class="sidebar-icon">🔒</span> Admin Panel</a></li>
+            <li><a href="villages.html"><span class="sidebar-icon">🏘️</span> Villages</a></li>
+            <li><a href="complaint.html"><span class="sidebar-icon">📝</span> Complaints</a></li>
+            <li><a href="terms.html"><span class="sidebar-icon">📜</span> Terms</a></li>
+        </ul>
+    </div>
+
+    <main>
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="section-container">
+                <div class="breadcrumb"><a href="index.html">Home</a> &bull; <span>Kisan Corner</span></div>
+                <h1>🌾 Kisan Corner</h1>
+                <p>Seasonal crop calendar, mandi prices, weather advisories and crop production statistics for Western UP farmers. Data sourced from ICAR, AGMARKNET, IMD and UP Agriculture Department.</p>
+            </div>
+        </section>
+
+        <!-- Sub-module Tabs -->
+        <section class="section">
+            <div class="section-container">
+                <div class="module-tabs" id="kisan-tabs">
+                    <button class="module-tab-btn active" data-tab="crop-calendar">🗓️ Crop Calendar</button>
+                    <button class="module-tab-btn" data-tab="mandi-prices">💹 Mandi Prices</button>
+                    <button class="module-tab-btn" data-tab="weather">🌦️ Weather Advisory</button>
+                    <button class="module-tab-btn" data-tab="production">📊 Production Stats</button>
+                </div>
+
+                <!-- Tab 1: Crop Calendar -->
+                <div class="module-panel active" id="panel-crop-calendar">
+                    <div class="glass-card module-card">
+                        <div class="module-card-header">
+                            <h2>Seasonal Crop Calendar — Western UP</h2>
+                            <div class="module-filters">
+                                <select id="crop-filter-district" class="module-select">
+                                    <option value="">All Districts</option>
+                                    <option value="Hapur">Hapur</option><option value="Ghaziabad">Ghaziabad</option>
+                                    <option value="Meerut">Meerut</option><option value="Bulandshahr">Bulandshahr</option>
+                                    <option value="Noida">Noida</option><option value="Greater Noida">Greater Noida</option>
+                                </select>
+                                <select id="crop-filter-season" class="module-select">
+                                    <option value="">All Seasons</option>
+                                    <option value="Rabi">Rabi (Winter)</option><option value="Kharif">Kharif (Monsoon)</option>
+                                    <option value="Zaid">Zaid (Summer)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="crop-calendar-content" class="module-data-grid">
+                            <div class="module-empty-state">
+                                <div class="empty-icon">🌾</div>
+                                <h3>Crop Calendar Data</h3>
+                                <p>No crop calendar records available yet. Data will appear here once imported by an administrator from official ICAR/KVK sources.</p>
+                                <a href="https://icar.org.in/" target="_blank" class="btn btn-outline" style="margin-top:1rem;">Visit ICAR Official Website →</a>
+                            </div>
+                        </div>
+                        <div class="module-source-footer">
+                            <span>Sources: ICAR, UP Agriculture Department, Krishi Vigyan Kendras</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Mandi Prices -->
+                <div class="module-panel" id="panel-mandi-prices">
+                    <div class="glass-card module-card">
+                        <div class="module-card-header">
+                            <h2>Mandi Crop Prices — Western UP</h2>
+                            <div class="module-filters">
+                                <select id="mandi-filter-district" class="module-select">
+                                    <option value="">All Districts</option>
+                                    <option value="Hapur">Hapur</option><option value="Ghaziabad">Ghaziabad</option>
+                                    <option value="Meerut">Meerut</option><option value="Bulandshahr">Bulandshahr</option>
+                                </select>
+                                <select id="mandi-filter-commodity" class="module-select">
+                                    <option value="">All Commodities</option>
+                                    <option value="Wheat">Wheat</option><option value="Paddy">Paddy</option>
+                                    <option value="Sugarcane">Sugarcane</option><option value="Mustard">Mustard</option>
+                                    <option value="Potato">Potato</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="mandi-prices-content">
+                            <div class="module-empty-state">
+                                <div class="empty-icon">💹</div>
+                                <h3>Mandi Price Data</h3>
+                                <p>No mandi price records available yet. Data will appear here once imported from authorized AGMARKNET datasets.</p>
+                                <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">Live prices are sourced from <strong>AGMARKNET</strong> (agmarknet.gov.in). Historical or manually imported data is clearly labelled.</p>
+                                <a href="https://agmarknet.gov.in/" target="_blank" class="btn btn-outline" style="margin-top:1rem;">Visit AGMARKNET →</a>
+                            </div>
+                        </div>
+                        <div class="module-source-footer">
+                            <span>Source: AGMARKNET — Government of India</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Weather Advisory -->
+                <div class="module-panel" id="panel-weather">
+                    <div class="glass-card module-card">
+                        <div class="module-card-header">
+                            <h2>Weather & Agricultural Advisories</h2>
+                            <div class="module-filters">
+                                <select id="weather-filter-district" class="module-select">
+                                    <option value="">All Districts</option>
+                                    <option value="Hapur">Hapur</option><option value="Ghaziabad">Ghaziabad</option>
+                                    <option value="Meerut">Meerut</option><option value="Bulandshahr">Bulandshahr</option>
+                                    <option value="Noida">Noida</option><option value="Greater Noida">Greater Noida</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="weather-content">
+                            <div class="module-empty-state">
+                                <div class="empty-icon">🌦️</div>
+                                <h3>Weather Advisory Data</h3>
+                                <p>No weather advisories available yet. For current weather information, please visit the official IMD website.</p>
+                                <div style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center; margin-top:1rem;">
+                                    <a href="https://mausam.imd.gov.in/" target="_blank" class="btn btn-outline">IMD Weather →</a>
+                                    <a href="https://internal.imd.gov.in/pages/district_forecast.php" target="_blank" class="btn btn-outline">District Forecast →</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="module-source-footer">
+                            <span>Source: India Meteorological Department (IMD)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Production Statistics -->
+                <div class="module-panel" id="panel-production">
+                    <div class="glass-card module-card">
+                        <div class="module-card-header">
+                            <h2>Crop Production Statistics (Historical)</h2>
+                            <div class="module-filters">
+                                <select id="prod-filter-district" class="module-select">
+                                    <option value="">All Districts</option>
+                                    <option value="Hapur">Hapur</option><option value="Ghaziabad">Ghaziabad</option>
+                                    <option value="Meerut">Meerut</option><option value="Bulandshahr">Bulandshahr</option>
+                                </select>
+                                <select id="prod-filter-crop" class="module-select">
+                                    <option value="">All Crops</option>
+                                    <option value="Wheat">Wheat</option><option value="Paddy">Paddy</option>
+                                    <option value="Sugarcane">Sugarcane</option><option value="Mustard">Mustard</option>
+                                    <option value="Potato">Potato</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="production-stats-content">
+                            <div class="module-empty-state">
+                                <div class="empty-icon">📊</div>
+                                <h3>Historical Production Statistics</h3>
+                                <p>No crop production statistics available yet. Data will appear here once imported from official UP Agriculture Statistics reports.</p>
+                                <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">Historical statistics are clearly labelled with crop, year, geographic coverage, and official source.</p>
+                            </div>
+                        </div>
+                        <div class="module-source-footer">
+                            <span>Source: UP Agriculture Statistics, Directorate of Agriculture</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-left">
+                <span class="footer-brand"><img src="assets/logo.png" alt="Village Hub" class="footer-logo-img"> <span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+                <p>&copy; 2026 Village Hub Community Initiative. All rights reserved.</p>
+                <ul class="footer-nav">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="kisan.html">Kisan Corner</a></li>
+                    <li><a href="education.html">Education</a></li>
+                    <li><a href="panchayat-funds.html">Panchayat Funds</a></li>
+                    <li><a href="villages.html">Villages</a></li>
+                    <li><a href="complaint.html">Complaints</a></li>
+                </ul>
+            </div>
+            <div class="footer-right">
+                <a href="https://jansunwai.up.nic.in/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size:0.8rem; padding:0.5rem 1rem;">UP Jansunwai Portal 1076</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal-content glass-card">
+            <button class="modal-close" id="close-auth-modal"><svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg></button>
+            <div class="modal-tabs"><button class="modal-tab active" id="tab-login">Login</button><button class="modal-tab" id="tab-signup">Signup</button></div>
+            <form id="login-form" class="modal-form active"><div class="form-group"><label for="login-email">Email Address</label><input type="email" id="login-email" required placeholder="your.email@example.com"></div><div class="form-group"><label for="login-password">Password</label><input type="password" id="login-password" required placeholder="••••••••"></div><button type="submit" class="btn btn-primary btn-block">Log In to Village Hub</button></form>
+            <form id="signup-form" class="modal-form"><div class="form-group"><label for="signup-name">Full Name</label><input type="text" id="signup-name" required placeholder="Rahul Sharma"></div><div class="form-group"><label for="signup-email">Email Address</label><input type="email" id="signup-email" required placeholder="your.email@example.com"></div><div class="form-group"><label for="signup-password">Password</label><input type="password" id="signup-password" required placeholder="Min 8 characters"></div><button type="submit" class="btn btn-primary btn-block">Create Account</button></form>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="app.js"></script>
+    <script src="js/modules.js"></script>
+</body>
+</html>

@@ -1089,14 +1089,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const tabComplaints = document.getElementById('admin-tab-complaints');
         const tabApps = document.getElementById('admin-tab-apps');
         const tabAdd = document.getElementById('admin-tab-add');
+        const tabKisan = document.getElementById('admin-tab-kisan');
+        const tabEducation = document.getElementById('admin-tab-education');
+        const tabPanchayat = document.getElementById('admin-tab-panchayat');
+        const tabBranding = document.getElementById('admin-tab-branding');
 
         const panelVillages = document.getElementById('admin-panel-villages');
         const panelComplaints = document.getElementById('admin-panel-complaints');
         const panelApps = document.getElementById('admin-panel-apps');
         const panelAdd = document.getElementById('admin-panel-add');
+        const panelKisan = document.getElementById('admin-panel-kisan');
+        const panelEducation = document.getElementById('admin-panel-education');
+        const panelPanchayat = document.getElementById('admin-panel-panchayat');
+        const panelBranding = document.getElementById('admin-panel-branding');
 
-        const tabs = [tabVillages, tabComplaints, tabApps, tabAdd];
-        const panels = [panelVillages, panelComplaints, panelApps, panelAdd];
+        const tabs = [tabVillages, tabComplaints, tabApps, tabAdd, tabKisan, tabEducation, tabPanchayat, tabBranding];
+        const panels = [panelVillages, panelComplaints, panelApps, panelAdd, panelKisan, panelEducation, panelPanchayat, panelBranding];
 
         tabs.forEach((tab, index) => {
             if (tab && panels[index]) {
@@ -1105,9 +1113,682 @@ document.addEventListener('DOMContentLoaded', () => {
                     panels.forEach(p => { if (p) p.classList.remove('active'); });
                     tab.classList.add('active');
                     panels[index].classList.add('active');
+
+                    // Lazy load data when switching to tabs
+                    if (tab === tabKisan) { loadAdminCrops(); loadAdminMandi(); loadAdminWeather(); loadAdminProd(); }
+                    if (tab === tabEducation) { loadAdminSchools(); loadAdminHealth(); }
+                    if (tab === tabPanchayat) { loadAdminPanchayat(); }
+                    if (tab === tabBranding) { loadAdminBranding(); }
                 });
             }
         });
+
+        // ---------------------------------------------------------------------
+        // ADMIN: Kisan Corner Subtabs & CRUD
+        // ---------------------------------------------------------------------
+        const kisanSubtabBtns = document.querySelectorAll('#kisan-admin-subtabs .admin-subtab-btn');
+        kisanSubtabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                kisanSubtabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const targetSubtab = btn.getAttribute('data-subtab');
+                document.querySelectorAll('.kisan-admin-section').forEach(sec => sec.style.display = 'none');
+                const targetSec = document.getElementById(targetSubtab);
+                if (targetSec) targetSec.style.display = 'block';
+            });
+        });
+
+        // 1. Crop Calendar
+        const adminCropsTbody = document.getElementById('admin-crops-tbody');
+        const addCropForm = document.getElementById('admin-add-crop-form');
+
+        const loadAdminCrops = async () => {
+            if (!adminCropsTbody) return;
+            try {
+                const res = await API.getCropCalendar();
+                const records = res.data || [];
+                if (records.length === 0) {
+                    adminCropsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:1.5rem;">No crop records found. Add one above!</td></tr>';
+                    return;
+                }
+                adminCropsTbody.innerHTML = records.map(c => `
+                    <tr>
+                        <td><strong>${c.crop_name}</strong></td>
+                        <td><span class="status-badge status-progress">${c.crop_season || 'All'}</span></td>
+                        <td>${c.district}</td>
+                        <td>${c.sowing_period} &bull; ${c.harvesting_period}</td>
+                        <td>${c.recommended_varieties || '—'}<br><span style="font-size:0.75rem; color:var(--text-muted);">${c.estimated_yield || ''}</span></td>
+                        <td><span style="font-size:0.8rem; color:var(--text-muted);">${c.source}</span></td>
+                        <td>
+                            <button class="btn btn-outline btn-sm" onclick="deleteAdminCrop('${c.id}')" style="border-color:#f87171; color:#f87171;">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading admin crops:', err);
+            }
+        };
+
+        window.deleteAdminCrop = async (id) => {
+            if (!confirm('Are you sure you want to delete this crop record?')) return;
+            try {
+                await API.deleteCropCalendar(id);
+                Toast.success('Crop record deleted');
+                loadAdminCrops();
+            } catch (err) {
+                Toast.error(err.message || 'Failed to delete record');
+            }
+        };
+
+        if (addCropForm) {
+            addCropForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const data = {
+                    crop_name: document.getElementById('crop-in-name').value,
+                    crop_season: document.getElementById('crop-in-season').value,
+                    district: document.getElementById('crop-in-district').value,
+                    sowing_period: document.getElementById('crop-in-sowing').value,
+                    harvesting_period: document.getElementById('crop-in-harvest').value,
+                    recommended_varieties: document.getElementById('crop-in-var').value,
+                    estimated_yield: document.getElementById('crop-in-yield').value,
+                    source: document.getElementById('crop-in-source').value,
+                    source_url: document.getElementById('crop-in-sourceurl').value,
+                    advisory: document.getElementById('crop-in-adv').value,
+                    is_verified: true
+                };
+                try {
+                    await API.createCropCalendar(data);
+                    Toast.success(`Crop "${data.crop_name}" added successfully!`);
+                    addCropForm.reset();
+                    loadAdminCrops();
+                } catch (err) {
+                    Toast.error(err.message || 'Failed to add crop');
+                }
+            });
+        }
+
+        // 2. Mandi Prices
+        const adminMandiTbody = document.getElementById('admin-mandi-tbody');
+        const addMandiForm = document.getElementById('admin-add-mandi-form');
+
+        const loadAdminMandi = async () => {
+            if (!adminMandiTbody) return;
+            try {
+                const res = await API.getMandiPrices();
+                const records = res.data || [];
+                if (records.length === 0) {
+                    adminMandiTbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:1.5rem;">No mandi price records found.</td></tr>';
+                    return;
+                }
+                adminMandiTbody.innerHTML = records.map(p => `
+                    <tr>
+                        <td><strong>${p.commodity}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${p.variety || ''}</span></td>
+                        <td>${p.mandi_name} (${p.district})</td>
+                        <td><strong style="color:var(--accent);">₹${p.modal_price}</strong> ${p.price_unit}</td>
+                        <td>₹${p.min_price || '—'} / ₹${p.max_price || '—'}</td>
+                        <td>${p.price_date || '—'}</td>
+                        <td><span class="status-badge status-progress">${p.data_type}</span></td>
+                        <td>
+                            <button class="btn btn-outline btn-sm" onclick="deleteAdminMandi('${p.id}')" style="border-color:#f87171; color:#f87171;">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading admin mandi:', err);
+            }
+        };
+
+        window.deleteAdminMandi = async (id) => {
+            if (!confirm('Are you sure you want to delete this mandi price record?')) return;
+            try {
+                await API.deleteMandiPrice(id);
+                Toast.success('Mandi price record deleted');
+                loadAdminMandi();
+            } catch (err) {
+                Toast.error(err.message || 'Failed to delete record');
+            }
+        };
+
+        if (addMandiForm) {
+            addMandiForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const data = {
+                    commodity: document.getElementById('mandi-in-comm').value,
+                    mandi_name: document.getElementById('mandi-in-name').value,
+                    district: document.getElementById('mandi-in-dist').value,
+                    modal_price: parseFloat(document.getElementById('mandi-in-modal').value),
+                    min_price: document.getElementById('mandi-in-min').value ? parseFloat(document.getElementById('mandi-in-min').value) : null,
+                    max_price: document.getElementById('mandi-in-max').value ? parseFloat(document.getElementById('mandi-in-max').value) : null,
+                    price_unit: document.getElementById('mandi-in-unit').value,
+                    price_date: document.getElementById('mandi-in-date').value || new Date().toISOString().split('T')[0],
+                    data_type: document.getElementById('mandi-in-datatype').value,
+                    source: 'AGMARKNET',
+                    source_url: document.getElementById('mandi-in-url').value,
+                    is_verified: true
+                };
+                try {
+                    await API.createMandiPrice(data);
+                    Toast.success(`Price record for "${data.commodity}" saved!`);
+                    addMandiForm.reset();
+                    loadAdminMandi();
+                } catch (err) {
+                    Toast.error(err.message || 'Failed to save price');
+                }
+            });
+        }
+
+        // 3. Weather Advisories
+        const adminWeatherTbody = document.getElementById('admin-weather-tbody');
+        const addWeatherForm = document.getElementById('admin-add-weather-form');
+
+        const loadAdminWeather = async () => {
+            if (!adminWeatherTbody) return;
+            try {
+                const res = await API.getWeatherAdvisories();
+                const records = res.data || [];
+                if (records.length === 0) {
+                    adminWeatherTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:1.5rem;">No weather advisories found.</td></tr>';
+                    return;
+                }
+                adminWeatherTbody.innerHTML = records.map(w => `
+                    <tr>
+                        <td><strong>${w.title}</strong></td>
+                        <td>${w.district}</td>
+                        <td>${w.temperature_min || '—'} - ${w.temperature_max || '—'} °C</td>
+                        <td>${w.forecast_period || '—'}</td>
+                        <td><span style="font-size:0.8rem; color:${w.warnings && w.warnings !== 'None' ? '#f87171' : 'var(--text-muted)'};">${w.warnings || 'None'}</span></td>
+                        <td>
+                            <button class="btn btn-outline btn-sm" onclick="deleteAdminWeather('${w.id}')" style="border-color:#f87171; color:#f87171;">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading admin weather:', err);
+            }
+        };
+
+        window.deleteAdminWeather = async (id) => {
+            if (!confirm('Are you sure you want to delete this weather advisory?')) return;
+            try {
+                await API.deleteWeatherAdvisory(id);
+                Toast.success('Weather advisory deleted');
+                loadAdminWeather();
+            } catch (err) {
+                Toast.error(err.message || 'Failed to delete');
+            }
+        };
+
+        if (addWeatherForm) {
+            addWeatherForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const data = {
+                    district: document.getElementById('weather-in-dist').value,
+                    title: document.getElementById('weather-in-title').value,
+                    forecast_period: document.getElementById('weather-in-period').value,
+                    temperature_min: document.getElementById('weather-in-tmin').value,
+                    temperature_max: document.getElementById('weather-in-tmax').value,
+                    rainfall_info: document.getElementById('weather-in-rain').value,
+                    warnings: document.getElementById('weather-in-warn').value,
+                    description: document.getElementById('weather-in-desc').value,
+                    source: document.getElementById('weather-in-source').value,
+                    source_url: document.getElementById('weather-in-url').value,
+                    is_verified: true
+                };
+                try {
+                    await API.createWeatherAdvisory(data);
+                    Toast.success('Weather advisory published!');
+                    addWeatherForm.reset();
+                    loadAdminWeather();
+                } catch (err) {
+                    Toast.error(err.message || 'Failed to publish advisory');
+                }
+            });
+        }
+
+        // 4. Production Stats
+        const adminProdTbody = document.getElementById('admin-prod-tbody');
+        const addProdForm = document.getElementById('admin-add-prod-form');
+
+        const loadAdminProd = async () => {
+            if (!adminProdTbody) return;
+            try {
+                const res = await API.getProductionStats();
+                const records = res.data || [];
+                if (records.length === 0) {
+                    adminProdTbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:1.5rem;">No production statistics recorded.</td></tr>';
+                    return;
+                }
+                adminProdTbody.innerHTML = records.map(s => `
+                    <tr>
+                        <td><strong>${s.crop_name}</strong></td>
+                        <td>${s.agricultural_year}</td>
+                        <td>${s.district}</td>
+                        <td>${s.cultivated_area || '—'}</td>
+                        <td>${s.production || '—'}</td>
+                        <td>${s.yield || '—'}</td>
+                        <td>
+                            <button class="btn btn-outline btn-sm" onclick="deleteAdminProd('${s.id}')" style="border-color:#f87171; color:#f87171;">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading admin production stats:', err);
+            }
+        };
+
+        window.deleteAdminProd = async (id) => {
+            if (!confirm('Are you sure you want to delete this production record?')) return;
+            try {
+                await API.deleteProductionStat(id);
+                Toast.success('Production statistic deleted');
+                loadAdminProd();
+            } catch (err) {
+                Toast.error(err.message || 'Failed to delete');
+            }
+        };
+
+        if (addProdForm) {
+            addProdForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const data = {
+                    crop_name: document.getElementById('prod-in-crop').value,
+                    agricultural_year: document.getElementById('prod-in-year').value,
+                    district: document.getElementById('prod-in-dist').value,
+                    cultivated_area: document.getElementById('prod-in-area').value,
+                    production: document.getElementById('prod-in-prod').value,
+                    yield: document.getElementById('prod-in-yield').value,
+                    geographic_level: document.getElementById('prod-in-geo').value,
+                    source: document.getElementById('prod-in-source').value,
+                    is_verified: true
+                };
+                try {
+                    await API.createProductionStat(data);
+                    Toast.success('Production statistic added!');
+                    addProdForm.reset();
+                    loadAdminProd();
+                } catch (err) {
+                    Toast.error(err.message || 'Failed to add statistic');
+                }
+            });
+        }
+
+        // ---------------------------------------------------------------------
+        // ADMIN: Education & Healthcare Subtabs & CRUD
+        // ---------------------------------------------------------------------
+        const eduSubtabBtns = document.querySelectorAll('#edu-admin-subtabs .admin-subtab-btn');
+        eduSubtabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                eduSubtabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const targetSubtab = btn.getAttribute('data-subtab');
+                document.querySelectorAll('.edu-admin-section').forEach(sec => sec.style.display = 'none');
+                const targetSec = document.getElementById(targetSubtab);
+                if (targetSec) targetSec.style.display = 'block';
+            });
+        });
+
+        // 1. Schools
+        const adminSchoolsTbody = document.getElementById('admin-schools-tbody');
+        const addSchoolForm = document.getElementById('admin-add-school-form');
+
+        const loadAdminSchools = async () => {
+            if (!adminSchoolsTbody) return;
+            try {
+                const res = await API.getSchools();
+                const records = res.data || [];
+                if (records.length === 0) {
+                    adminSchoolsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:1.5rem;">No school records found.</td></tr>';
+                    return;
+                }
+                adminSchoolsTbody.innerHTML = records.map(s => `
+                    <tr>
+                        <td><strong>${s.school_name || 'Group Record'}</strong></td>
+                        <td><span class="status-badge status-progress">${s.school_type}</span></td>
+                        <td>${s.district}${s.village ? ' / ' + s.village : ''}</td>
+                        <td>${s.total_students ? s.total_students.toLocaleString('en-IN') : '—'}</td>
+                        <td>${s.total_teachers || '—'}</td>
+                        <td>${s.academic_year}</td>
+                        <td>
+                            <button class="btn btn-outline btn-sm" onclick="deleteAdminSchool('${s.id}')" style="border-color:#f87171; color:#f87171;">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading admin schools:', err);
+            }
+        };
+
+        window.deleteAdminSchool = async (id) => {
+            if (!confirm('Are you sure you want to delete this school record?')) return;
+            try {
+                await API.deleteSchool(id);
+                Toast.success('School record deleted');
+                loadAdminSchools();
+            } catch (err) {
+                Toast.error(err.message || 'Failed to delete');
+            }
+        };
+
+        if (addSchoolForm) {
+            addSchoolForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const data = {
+                    school_name: document.getElementById('sch-in-name').value,
+                    school_type: document.getElementById('sch-in-type').value,
+                    district: document.getElementById('sch-in-dist').value,
+                    village: document.getElementById('sch-in-village').value,
+                    block_name: document.getElementById('sch-in-block').value,
+                    geographic_level: document.getElementById('sch-in-geo').value,
+                    total_students: document.getElementById('sch-in-students').value ? parseInt(document.getElementById('sch-in-students').value) : null,
+                    boys_enrolment: document.getElementById('sch-in-boys').value ? parseInt(document.getElementById('sch-in-boys').value) : null,
+                    girls_enrolment: document.getElementById('sch-in-girls').value ? parseInt(document.getElementById('sch-in-girls').value) : null,
+                    total_teachers: document.getElementById('sch-in-teachers').value ? parseInt(document.getElementById('sch-in-teachers').value) : null,
+                    facilities: document.getElementById('sch-in-fac').value,
+                    academic_year: document.getElementById('sch-in-year').value,
+                    source: document.getElementById('sch-in-source').value,
+                    is_verified: true
+                };
+                try {
+                    await API.createSchool(data);
+                    Toast.success('School record saved!');
+                    addSchoolForm.reset();
+                    loadAdminSchools();
+                } catch (err) {
+                    Toast.error(err.message || 'Failed to save school');
+                }
+            });
+        }
+
+        // 2. Healthcare
+        const adminHealthTbody = document.getElementById('admin-health-tbody');
+        const addHealthForm = document.getElementById('admin-add-health-form');
+
+        const loadAdminHealth = async () => {
+            if (!adminHealthTbody) return;
+            try {
+                const res = await API.getHealthcare();
+                const records = res.data || [];
+                if (records.length === 0) {
+                    adminHealthTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:1.5rem;">No healthcare facilities found.</td></tr>';
+                    return;
+                }
+                adminHealthTbody.innerHTML = records.map(h => `
+                    <tr>
+                        <td><strong>${h.facility_name}</strong></td>
+                        <td><span class="status-badge status-progress">${h.facility_type}</span></td>
+                        <td>${h.district}${h.village ? ' / ' + h.village : ''}</td>
+                        <td>${h.bed_capacity ? h.bed_capacity + ' Beds' : '—'} &bull; ${h.doctors_count || 0} Docs</td>
+                        <td><span class="status-badge ${h.operational_status === 'Operational' ? 'status-completed' : 'status-assessment'}">${h.operational_status || 'Reported'}</span></td>
+                        <td>
+                            <button class="btn btn-outline btn-sm" onclick="deleteAdminHealth('${h.id}')" style="border-color:#f87171; color:#f87171;">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading admin health:', err);
+            }
+        };
+
+        window.deleteAdminHealth = async (id) => {
+            if (!confirm('Are you sure you want to delete this healthcare facility record?')) return;
+            try {
+                await API.deleteHealthcare(id);
+                Toast.success('Healthcare facility deleted');
+                loadAdminHealth();
+            } catch (err) {
+                Toast.error(err.message || 'Failed to delete');
+            }
+        };
+
+        if (addHealthForm) {
+            addHealthForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const data = {
+                    facility_name: document.getElementById('health-in-name').value,
+                    facility_type: document.getElementById('health-in-type').value,
+                    district: document.getElementById('health-in-dist').value,
+                    village: document.getElementById('health-in-village').value,
+                    block_name: document.getElementById('health-in-block').value,
+                    operational_status: document.getElementById('health-in-status').value,
+                    bed_capacity: document.getElementById('health-in-beds').value ? parseInt(document.getElementById('health-in-beds').value) : null,
+                    doctors_count: document.getElementById('health-in-doc').value ? parseInt(document.getElementById('health-in-doc').value) : null,
+                    staff_count: document.getElementById('health-in-staff').value ? parseInt(document.getElementById('health-in-staff').value) : null,
+                    contact_details: document.getElementById('health-in-contact').value,
+                    services: document.getElementById('health-in-services').value,
+                    source: 'UP Health Department',
+                    is_verified: true
+                };
+                try {
+                    await API.createHealthcare(data);
+                    Toast.success(`Facility "${data.facility_name}" added!`);
+                    addHealthForm.reset();
+                    loadAdminHealth();
+                } catch (err) {
+                    Toast.error(err.message || 'Failed to add facility');
+                }
+            });
+        }
+
+        // ---------------------------------------------------------------------
+        // ADMIN: Panchayat Funds CRUD, CSV Import & Export
+        // ---------------------------------------------------------------------
+        const adminPfTbody = document.getElementById('admin-pf-tbody');
+        const addPfForm = document.getElementById('admin-add-pf-form');
+        const pfImportBox = document.getElementById('pf-import-box');
+        const showImportBtn = document.getElementById('admin-show-import-btn');
+        const cancelImportBtn = document.getElementById('pf-cancel-import-btn');
+        const execImportBtn = document.getElementById('pf-execute-import-btn');
+        const exportPfBtn = document.getElementById('admin-export-pf-btn');
+        let currentPfRecords = [];
+
+        const loadAdminPanchayat = async () => {
+            if (!adminPfTbody) return;
+            try {
+                const res = await API.getPanchayatFunds();
+                currentPfRecords = res.data || [];
+                if (currentPfRecords.length === 0) {
+                    adminPfTbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:1.5rem;">No Panchayat fund records found. Add or import records above.</td></tr>';
+                    return;
+                }
+                adminPfTbody.innerHTML = currentPfRecords.map(r => `
+                    <tr>
+                        <td><strong>${r.gram_panchayat}</strong></td>
+                        <td>${r.district} (${r.block_name || 'Block'})</td>
+                        <td>${r.financial_year}</td>
+                        <td>${r.scheme_name || '—'}</td>
+                        <td class="pf-financial-val">₹${r.sanctioned_amount ? Number(r.sanctioned_amount).toLocaleString('en-IN') : '—'}</td>
+                        <td class="pf-financial-val">₹${r.released_amount ? Number(r.released_amount).toLocaleString('en-IN') : '—'}</td>
+                        <td class="pf-financial-val">₹${r.expenditure ? Number(r.expenditure).toLocaleString('en-IN') : '—'}</td>
+                        <td><span class="status-badge ${r.work_status === 'Completed' ? 'status-completed' : 'status-assessment'}">${r.work_status || 'Reported'}</span></td>
+                        <td>
+                            <button class="btn btn-outline btn-sm" onclick="deleteAdminPf('${r.id}')" style="border-color:#f87171; color:#f87171;">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading admin panchayat funds:', err);
+            }
+        };
+
+        window.deleteAdminPf = async (id) => {
+            if (!confirm('Are you sure you want to delete this Panchayat fund record?')) return;
+            try {
+                await API.deletePanchayatFund(id);
+                Toast.success('Panchayat fund record deleted');
+                loadAdminPanchayat();
+            } catch (err) {
+                Toast.error(err.message || 'Failed to delete record');
+            }
+        };
+
+        if (addPfForm) {
+            addPfForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const data = {
+                    gram_panchayat: document.getElementById('pf-in-gp').value,
+                    block_name: document.getElementById('pf-in-block').value,
+                    district: document.getElementById('pf-in-dist').value,
+                    financial_year: document.getElementById('pf-in-fy').value,
+                    scheme_name: document.getElementById('pf-in-scheme').value,
+                    work_name: document.getElementById('pf-in-work').value,
+                    sanctioned_amount: document.getElementById('pf-in-sanc').value ? parseFloat(document.getElementById('pf-in-sanc').value) : null,
+                    released_amount: document.getElementById('pf-in-rel').value ? parseFloat(document.getElementById('pf-in-rel').value) : null,
+                    expenditure: document.getElementById('pf-in-exp').value ? parseFloat(document.getElementById('pf-in-exp').value) : null,
+                    balance: document.getElementById('pf-in-bal').value ? parseFloat(document.getElementById('pf-in-bal').value) : null,
+                    work_status: document.getElementById('pf-in-status').value,
+                    source: document.getElementById('pf-in-source').value,
+                    source_url: document.getElementById('pf-in-url').value,
+                    is_verified: true
+                };
+                try {
+                    await API.createPanchayatFund(data);
+                    Toast.success('Panchayat fund record added!');
+                    addPfForm.reset();
+                    loadAdminPanchayat();
+                } catch (err) {
+                    Toast.error(err.message || 'Failed to add record');
+                }
+            });
+        }
+
+        // CSV Import toggles
+        if (showImportBtn && pfImportBox) {
+            showImportBtn.addEventListener('click', () => {
+                pfImportBox.style.display = pfImportBox.style.display === 'none' ? 'block' : 'none';
+            });
+        }
+        if (cancelImportBtn && pfImportBox) {
+            cancelImportBtn.addEventListener('click', () => {
+                pfImportBox.style.display = 'none';
+            });
+        }
+
+        if (execImportBtn) {
+            execImportBtn.addEventListener('click', async () => {
+                const text = document.getElementById('pf-import-csv-text').value.trim();
+                if (!text) {
+                    Toast.warning('Please paste CSV content to import');
+                    return;
+                }
+
+                try {
+                    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                    if (lines.length < 2) throw new Error('CSV must contain a header line and at least one data row');
+
+                    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                    const records = [];
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(',').map(v => v.trim());
+                        const rec = {};
+                        headers.forEach((h, idx) => {
+                            rec[h] = values[idx] || '';
+                        });
+
+                        records.push({
+                            gram_panchayat: rec.gram_panchayat || rec.gp || 'Gram Panchayat',
+                            district: rec.district || 'Hapur',
+                            block_name: rec.block_name || rec.block || '',
+                            financial_year: rec.financial_year || rec.fy || '2025-26',
+                            scheme_name: rec.scheme_name || rec.scheme || '',
+                            sanctioned_amount: parseFloat(rec.sanctioned_amount) || null,
+                            released_amount: parseFloat(rec.released_amount) || null,
+                            expenditure: parseFloat(rec.expenditure) || null,
+                            balance: parseFloat(rec.balance) || null,
+                            work_name: rec.work_name || '',
+                            work_status: rec.work_status || 'Reported',
+                            source: 'eGramSwaraj',
+                            data_type: 'imported',
+                            is_verified: true
+                        });
+                    }
+
+                    const res = await API.importPanchayatFunds(records);
+                    Toast.success(`Successfully imported ${res.count || records.length} records!`);
+                    pfImportBox.style.display = 'none';
+                    document.getElementById('pf-import-csv-text').value = '';
+                    loadAdminPanchayat();
+                } catch (err) {
+                    Toast.error('Import failed: ' + (err.message || 'Invalid CSV format'));
+                }
+            });
+        }
+
+        // CSV Export
+        if (exportPfBtn) {
+            exportPfBtn.addEventListener('click', () => {
+                if (currentPfRecords.length === 0) {
+                    Toast.warning('No records to export');
+                    return;
+                }
+                const headers = ['gram_panchayat', 'district', 'block_name', 'financial_year', 'scheme_name', 'sanctioned_amount', 'released_amount', 'expenditure', 'balance', 'work_name', 'work_status', 'source'];
+                const csvRows = [headers.join(',')];
+                currentPfRecords.forEach(r => {
+                    const row = headers.map(h => {
+                        let val = r[h] !== null && r[h] !== undefined ? String(r[h]) : '';
+                        if (val.includes(',') || val.includes('"')) {
+                            val = '"' + val.replace(/"/g, '""') + '"';
+                        }
+                        return val;
+                    });
+                    csvRows.push(row.join(','));
+                });
+                const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `panchayat_funds_${Date.now()}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+                Toast.info('CSV export downloaded');
+            });
+        }
+
+        // ---------------------------------------------------------------------
+        // ADMIN: Branding & Logo Management
+        // ---------------------------------------------------------------------
+        const brandingForm = document.getElementById('admin-branding-form');
+        const brandingLogoInput = document.getElementById('branding-logo-url');
+        const brandingSiteTitleInput = document.getElementById('branding-site-title');
+        const brandingPreview = document.getElementById('branding-logo-preview');
+
+        const loadAdminBranding = async () => {
+            try {
+                const res = await API.getSettings();
+                const settings = res.data || {};
+                if (settings.logo_url && brandingLogoInput) {
+                    brandingLogoInput.value = settings.logo_url;
+                    if (brandingPreview) brandingPreview.src = settings.logo_url;
+                }
+                if (settings.site_name && brandingSiteTitleInput) {
+                    brandingSiteTitleInput.value = settings.site_name;
+                }
+            } catch (err) {
+                console.error('Error loading branding settings:', err);
+            }
+        };
+
+        if (brandingLogoInput && brandingPreview) {
+            brandingLogoInput.addEventListener('input', () => {
+                brandingPreview.src = brandingLogoInput.value || 'assets/logo.png';
+            });
+        }
+
+        if (brandingForm) {
+            brandingForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newLogoUrl = brandingLogoInput.value.trim();
+                const newTitle = brandingSiteTitleInput ? brandingSiteTitleInput.value.trim() : 'Village Hub';
+
+                try {
+                    await API.updateSetting('logo_url', newLogoUrl);
+                    if (newTitle) await API.updateSetting('site_name', newTitle);
+                    Toast.success('Branding settings saved to Supabase!');
+                } catch (err) {
+                    Toast.error(err.message || 'Failed to update branding');
+                }
+            });
+        }
     }
 
     // ==========================================================================

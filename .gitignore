@@ -13,9 +13,8 @@ web_modules/
 *.bak
 *.tmp
 server/data_backup/
-server/data/users.json
-server/data/complaints.json
-server/data/applications.json
+server/data/*.json
+!server/data/villages.json
 report_temp.html
 
 # Logs & Diagnostics

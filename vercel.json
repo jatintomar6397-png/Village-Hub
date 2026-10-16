@@ -12,6 +12,9 @@
     { "source": "/register", "destination": "/register.html" },
     { "source": "/benefits", "destination": "/benefits.html" },
     { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/kisan", "destination": "/kisan.html" },
+    { "source": "/education", "destination": "/education.html" },
+    { "source": "/panchayat-funds", "destination": "/panchayat-funds.html" },
     { "source": "/((?!api/.*).*)", "destination": "/$1" }
   ],
   "headers": [

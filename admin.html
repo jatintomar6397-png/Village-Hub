@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard & Grievance Review | Village Hub</title>
+    <link rel="icon" type="image/png" href="assets/logo.png">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,16 +24,18 @@
     <header class="navbar">
         <div class="nav-container">
             <div class="nav-left">
-                <a href="index.html" class="brand-logo">
-                    <span class="logo-init">VH</span>
+                <a href="index.html" class="logo-link">
+                    <img src="assets/logo.png" alt="Village Hub Logo" class="nav-logo-img">
                     <span class="brand-name"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
                 </a>
             </div>
             <nav class="nav-middle">
                 <ul class="nav-links">
                     <li><a href="index.html">Home</a></li>
+                    <li><a href="kisan.html">Kisan Corner</a></li>
+                    <li><a href="education.html">Education</a></li>
+                    <li><a href="panchayat-funds.html">Panchayat Funds</a></li>
                     <li><a href="schemes.html">Govt Schemes</a></li>
-                    <li><a href="register.html">Register</a></li>
                     <li><a href="villages.html">Villages List</a></li>
                     <li><a href="complaint.html">Register Complaint</a></li>
                 </ul>
@@ -58,12 +61,15 @@
     <!-- Sidebar Menu -->
     <div class="sidebar-menu" id="sidebar-menu">
         <div class="sidebar-header">
-            <span class="logo-init">VH</span>
+            <img src="assets/logo.png" alt="Village Hub" class="sidebar-logo-img">
             <span class="brand-name"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
         </div>
         <ul class="sidebar-links">
             <li><a href="dashboard.html"><span class="sidebar-icon">📊</span> Dashboard</a></li>
             <li><a href="map.html"><span class="sidebar-icon">🗺️</span> Live Map</a></li>
+            <li><a href="kisan.html"><span class="sidebar-icon">🌾</span> Kisan Corner</a></li>
+            <li><a href="education.html"><span class="sidebar-icon">🏫</span> Education & Health</a></li>
+            <li><a href="panchayat-funds.html"><span class="sidebar-icon">💰</span> Panchayat Funds</a></li>
             <li><a href="admin.html" class="active"><span class="sidebar-icon">🔒</span> Admin Panel</a></li>
             <li><a href="benefits.html"><span class="sidebar-icon">🎯</span> Benefits</a></li>
             <li><a href="terms.html"><span class="sidebar-icon">📜</span> Terms</a></li>
@@ -127,6 +133,10 @@
                         <button class="admin-tab-btn" id="admin-tab-complaints">Registered Complaints (<span id="pending-complaints-count">0</span>)</button>
                         <button class="admin-tab-btn" id="admin-tab-apps">Applications (<span id="pending-app-count">0</span>)</button>
                         <button class="admin-tab-btn" id="admin-tab-add">Add New Village</button>
+                        <button class="admin-tab-btn" id="admin-tab-kisan">🌾 Kisan Corner</button>
+                        <button class="admin-tab-btn" id="admin-tab-education">🏫 Education & Health</button>
+                        <button class="admin-tab-btn" id="admin-tab-panchayat">💰 Panchayat Funds</button>
+                        <button class="admin-tab-btn" id="admin-tab-branding">🎨 Website Logo / Branding</button>
                     </div>
 
                     <!-- Tab 1: Village Directory Management -->
@@ -163,7 +173,7 @@
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
                                 <div>
                                     <h3 style="margin-bottom: 0.2rem;">Citizen Registered Complaints & Photos</h3>
-                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Live synced from MongoDB Atlas &bull; Auto-refreshes every 10s</span>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Live synced from Supabase &bull; Auto-refreshes every 10s</span>
                                 </div>
                                 <button class="btn btn-secondary btn-sm" id="refresh-complaints-btn" style="display: inline-flex; align-items: center; gap: 0.4rem;">
                                     <span>🔄</span> Refresh Complaints
@@ -197,7 +207,7 @@
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
                                 <div>
                                     <h3 style="margin-bottom: 0.2rem;">Submitted Program Applications</h3>
-                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Live synced from MongoDB Atlas</span>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Live synced from Supabase</span>
                                 </div>
                                 <button class="btn btn-secondary btn-sm" id="refresh-apps-btn" style="display: inline-flex; align-items: center; gap: 0.4rem;">
                                     <span>🔄</span> Refresh Applications
@@ -275,6 +285,721 @@
                             </form>
                         </div>
                     </div>
+
+                    <!-- Tab 5: Manage Kisan Corner -->
+                    <div class="admin-panel-content" id="admin-panel-kisan">
+                        <div class="glass-card" style="padding: 2rem;">
+                            <div class="admin-subtabs" id="kisan-admin-subtabs">
+                                <button class="admin-subtab-btn active" data-subtab="kisan-crops">Crop Calendar</button>
+                                <button class="admin-subtab-btn" data-subtab="kisan-mandi">Mandi Prices</button>
+                                <button class="admin-subtab-btn" data-subtab="kisan-weather">Weather Advisories</button>
+                                <button class="admin-subtab-btn" data-subtab="kisan-stats">Production Stats</button>
+                            </div>
+
+                            <!-- Kisan Subtab 1: Crop Calendar -->
+                            <div class="kisan-admin-section" id="kisan-admin-crops">
+                                <h4 style="margin-bottom: 1rem; color: var(--accent);">Add Seasonal Crop Record</h4>
+                                <form id="admin-add-crop-form" class="custom-form" style="margin-bottom: 2rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Crop Name *</label>
+                                            <input type="text" id="crop-in-name" required placeholder="e.g. Wheat (गेहूं)">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Crop Season *</label>
+                                            <select id="crop-in-season" required>
+                                                <option value="Rabi">Rabi (Winter)</option>
+                                                <option value="Kharif">Kharif (Monsoon)</option>
+                                                <option value="Zaid">Zaid (Summer)</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>District *</label>
+                                            <select id="crop-in-district" required>
+                                                <option value="All Western UP">All Western UP</option>
+                                                <option value="Hapur">Hapur</option>
+                                                <option value="Ghaziabad">Ghaziabad</option>
+                                                <option value="Meerut">Meerut</option>
+                                                <option value="Bulandshahr">Bulandshahr</option>
+                                                <option value="Noida">Noida</option>
+                                                <option value="Greater Noida">Greater Noida</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Sowing Period *</label>
+                                            <input type="text" id="crop-in-sowing" required placeholder="e.g. November - December">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Harvesting Period *</label>
+                                            <input type="text" id="crop-in-harvest" required placeholder="e.g. March - April">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Recommended Varieties</label>
+                                            <input type="text" id="crop-in-var" placeholder="e.g. HD-2967, PBW-343, DBW-187">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Estimated Yield</label>
+                                            <input type="text" id="crop-in-yield" placeholder="e.g. 45-50 Quintals/Hectare">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Source *</label>
+                                            <input type="text" id="crop-in-source" required value="ICAR / UP Agriculture Dept">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Source URL</label>
+                                            <input type="url" id="crop-in-sourceurl" placeholder="https://upagriculture.com/">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Agricultural Advisory / Best Practices</label>
+                                        <textarea id="crop-in-adv" rows="2" placeholder="First irrigation at Crown Root Initiation (21 days after sowing). Apply balanced NPK fertilizers."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Crop Calendar Entry</button>
+                                </form>
+
+                                <h4>Existing Crop Calendar Records</h4>
+                                <div class="admin-table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Crop</th>
+                                                <th>Season</th>
+                                                <th>District</th>
+                                                <th>Sowing / Harvest</th>
+                                                <th>Varieties / Yield</th>
+                                                <th>Source</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-crops-tbody">
+                                            <!-- Dynamically filled -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Kisan Subtab 2: Mandi Prices -->
+                            <div class="kisan-admin-section" id="kisan-admin-mandi" style="display: none;">
+                                <h4 style="margin-bottom: 1rem; color: var(--accent);">Add Mandi Market Price Record</h4>
+                                <form id="admin-add-mandi-form" class="custom-form" style="margin-bottom: 2rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Commodity *</label>
+                                            <input type="text" id="mandi-in-comm" required placeholder="e.g. Wheat">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Mandi / Market Name *</label>
+                                            <input type="text" id="mandi-in-name" required placeholder="e.g. Hapur Mandi">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>District *</label>
+                                            <select id="mandi-in-dist" required>
+                                                <option value="Hapur">Hapur</option>
+                                                <option value="Ghaziabad">Ghaziabad</option>
+                                                <option value="Meerut">Meerut</option>
+                                                <option value="Bulandshahr">Bulandshahr</option>
+                                                <option value="Noida">Noida</option>
+                                                <option value="Greater Noida">Greater Noida</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Modal Price (₹) *</label>
+                                            <input type="number" step="0.01" id="mandi-in-modal" required placeholder="e.g. 2450">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Min / Max Price (₹)</label>
+                                            <div style="display:flex; gap:0.5rem;">
+                                                <input type="number" step="0.01" id="mandi-in-min" placeholder="Min (2350)">
+                                                <input type="number" step="0.01" id="mandi-in-max" placeholder="Max (2500)">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Price Unit</label>
+                                            <input type="text" id="mandi-in-unit" value="₹/Quintal" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Price Date</label>
+                                            <input type="date" id="mandi-in-date">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Data Type</label>
+                                            <select id="mandi-in-datatype">
+                                                <option value="imported">Imported (Verified Official)</option>
+                                                <option value="historical">Historical</option>
+                                                <option value="live">Live</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Source URL</label>
+                                            <input type="url" id="mandi-in-url" placeholder="https://agmarknet.gov.in/">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Mandi Price Record</button>
+                                </form>
+
+                                <h4>Existing Mandi Price Records</h4>
+                                <div class="admin-table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Commodity</th>
+                                                <th>Mandi / District</th>
+                                                <th>Modal Price</th>
+                                                <th>Min / Max</th>
+                                                <th>Date</th>
+                                                <th>Type</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-mandi-tbody">
+                                            <!-- Dynamically filled -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Kisan Subtab 3: Weather -->
+                            <div class="kisan-admin-section" id="kisan-admin-weather" style="display: none;">
+                                <h4 style="margin-bottom: 1rem; color: var(--accent);">Add Agricultural Weather Advisory</h4>
+                                <form id="admin-add-weather-form" class="custom-form" style="margin-bottom: 2rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>District *</label>
+                                            <select id="weather-in-dist" required>
+                                                <option value="Hapur">Hapur</option>
+                                                <option value="Ghaziabad">Ghaziabad</option>
+                                                <option value="Meerut">Meerut</option>
+                                                <option value="Bulandshahr">Bulandshahr</option>
+                                                <option value="Noida">Noida</option>
+                                                <option value="Greater Noida">Greater Noida</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Advisory Title *</label>
+                                            <input type="text" id="weather-in-title" required placeholder="e.g. Rabi Sowing Advisory">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Forecast Period</label>
+                                            <input type="text" id="weather-in-period" placeholder="e.g. Oct 16 - Oct 22">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Min / Max Temp (°C)</label>
+                                            <div style="display:flex; gap:0.5rem;">
+                                                <input type="text" id="weather-in-tmin" placeholder="Min (18)">
+                                                <input type="text" id="weather-in-tmax" placeholder="Max (32)">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Rainfall Info</label>
+                                            <input type="text" id="weather-in-rain" placeholder="e.g. Dry weather likely to prevail">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Warnings (if any)</label>
+                                            <input type="text" id="weather-in-warn" placeholder="e.g. None">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Detailed Advisory</label>
+                                        <textarea id="weather-in-desc" rows="2" placeholder="Farmers are advised to commence land preparation for Rabi crops."></textarea>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Source</label>
+                                            <input type="text" id="weather-in-source" value="IMD Mausam" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Source URL</label>
+                                            <input type="url" id="weather-in-url" value="https://mausam.imd.gov.in/">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Weather Advisory</button>
+                                </form>
+
+                                <h4>Existing Weather Advisories</h4>
+                                <div class="admin-table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Title</th>
+                                                <th>District</th>
+                                                <th>Temp</th>
+                                                <th>Period</th>
+                                                <th>Warnings</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-weather-tbody">
+                                            <!-- Dynamically filled -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Kisan Subtab 4: Production Stats -->
+                            <div class="kisan-admin-section" id="kisan-admin-stats" style="display: none;">
+                                <h4 style="margin-bottom: 1rem; color: var(--accent);">Add Historical Crop Production Record</h4>
+                                <form id="admin-add-prod-form" class="custom-form" style="margin-bottom: 2rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Crop Name *</label>
+                                            <input type="text" id="prod-in-crop" required placeholder="e.g. Sugarcane (गन्ना)">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Agricultural Year *</label>
+                                            <input type="text" id="prod-in-year" required placeholder="e.g. 2024-25">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>District *</label>
+                                            <select id="prod-in-dist" required>
+                                                <option value="Hapur">Hapur</option>
+                                                <option value="Ghaziabad">Ghaziabad</option>
+                                                <option value="Meerut">Meerut</option>
+                                                <option value="Bulandshahr">Bulandshahr</option>
+                                                <option value="Noida">Noida</option>
+                                                <option value="Greater Noida">Greater Noida</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Cultivated Area</label>
+                                            <input type="text" id="prod-in-area" placeholder="e.g. 42,500 Hectares">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Total Production</label>
+                                            <input type="text" id="prod-in-prod" placeholder="e.g. 3,25,000 Tonnes">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Yield</label>
+                                            <input type="text" id="prod-in-yield" placeholder="e.g. 76,500 Kg/Hectare">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Geographic Level</label>
+                                            <select id="prod-in-geo">
+                                                <option value="District">District</option>
+                                                <option value="Block">Block</option>
+                                                <option value="Village">Village</option>
+                                                <option value="State">State</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Source</label>
+                                            <input type="text" id="prod-in-source" value="UP Agriculture Statistics" required>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Production Record</button>
+                                </form>
+
+                                <h4>Existing Production Statistics</h4>
+                                <div class="admin-table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Crop</th>
+                                                <th>Year</th>
+                                                <th>District</th>
+                                                <th>Area</th>
+                                                <th>Production</th>
+                                                <th>Yield</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-prod-tbody">
+                                            <!-- Dynamically filled -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 6: Manage Education & Healthcare -->
+                    <div class="admin-panel-content" id="admin-panel-education">
+                        <div class="glass-card" style="padding: 2rem;">
+                            <div class="admin-subtabs" id="edu-admin-subtabs">
+                                <button class="admin-subtab-btn active" data-subtab="edu-admin-schools">School Information</button>
+                                <button class="admin-subtab-btn" data-subtab="edu-admin-health">Healthcare Facilities</button>
+                            </div>
+
+                            <!-- Edu Subtab 1: Schools -->
+                            <div class="edu-admin-section" id="edu-admin-schools">
+                                <h4 style="margin-bottom: 1rem; color: var(--accent);">Add School Record</h4>
+                                <form id="admin-add-school-form" class="custom-form" style="margin-bottom: 2rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>School Name / Group Name</label>
+                                            <input type="text" id="sch-in-name" placeholder="e.g. Primary School Pilkhuwa">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Type *</label>
+                                            <select id="sch-in-type" required>
+                                                <option value="Government">Government</option>
+                                                <option value="Private">Private</option>
+                                                <option value="Aided">Aided</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>District *</label>
+                                            <select id="sch-in-dist" required>
+                                                <option value="Hapur">Hapur</option>
+                                                <option value="Ghaziabad">Ghaziabad</option>
+                                                <option value="Meerut">Meerut</option>
+                                                <option value="Bulandshahr">Bulandshahr</option>
+                                                <option value="Noida">Noida</option>
+                                                <option value="Greater Noida">Greater Noida</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Village Name</label>
+                                            <input type="text" id="sch-in-village" placeholder="e.g. Dhaulana">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Block Name</label>
+                                            <input type="text" id="sch-in-block" placeholder="e.g. Dhaulana Block">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Geographic Level *</label>
+                                            <select id="sch-in-geo" required>
+                                                <option value="Village">Village</option>
+                                                <option value="Gram Panchayat">Gram Panchayat</option>
+                                                <option value="Block">Block</option>
+                                                <option value="District">District</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Total Enrolment</label>
+                                            <input type="number" id="sch-in-students" placeholder="e.g. 240">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Boys / Girls Enrolment</label>
+                                            <div style="display:flex; gap:0.5rem;">
+                                                <input type="number" id="sch-in-boys" placeholder="Boys (120)">
+                                                <input type="number" id="sch-in-girls" placeholder="Girls (120)">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Total Teachers</label>
+                                            <input type="number" id="sch-in-teachers" placeholder="e.g. 8">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Facilities Published</label>
+                                            <input type="text" id="sch-in-fac" placeholder="e.g. Library, RO Drinking Water, Toilets, Playground">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Academic Year *</label>
+                                            <input type="text" id="sch-in-year" required value="2025-26">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Source</label>
+                                            <input type="text" id="sch-in-source" value="UDISE+" required>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save School Record</button>
+                                </form>
+
+                                <h4>Existing School Records</h4>
+                                <div class="admin-table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>School / Group</th>
+                                                <th>Type</th>
+                                                <th>District / Village</th>
+                                                <th>Students</th>
+                                                <th>Teachers</th>
+                                                <th>Year</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-schools-tbody">
+                                            <!-- Dynamically filled -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Edu Subtab 2: Healthcare -->
+                            <div class="edu-admin-section" id="edu-admin-health" style="display: none;">
+                                <h4 style="margin-bottom: 1rem; color: var(--accent);">Add Healthcare Facility Record</h4>
+                                <form id="admin-add-health-form" class="custom-form" style="margin-bottom: 2rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Facility Name *</label>
+                                            <input type="text" id="health-in-name" required placeholder="e.g. Primary Health Centre Dhaulana">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Facility Type *</label>
+                                            <select id="health-in-type" required>
+                                                <option value="PHC">PHC (Primary Health Centre)</option>
+                                                <option value="CHC">CHC (Community Health Centre)</option>
+                                                <option value="Sub-Centre">Sub-Centre</option>
+                                                <option value="District Hospital">District Hospital</option>
+                                                <option value="Government Hospital">Government Hospital</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>District *</label>
+                                            <select id="health-in-dist" required>
+                                                <option value="Hapur">Hapur</option>
+                                                <option value="Ghaziabad">Ghaziabad</option>
+                                                <option value="Meerut">Meerut</option>
+                                                <option value="Bulandshahr">Bulandshahr</option>
+                                                <option value="Noida">Noida</option>
+                                                <option value="Greater Noida">Greater Noida</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Village Name</label>
+                                            <input type="text" id="health-in-village" placeholder="e.g. Dhaulana">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Block Name</label>
+                                            <input type="text" id="health-in-block" placeholder="e.g. Dhaulana Block">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Operational Status</label>
+                                            <select id="health-in-status">
+                                                <option value="Operational">Operational</option>
+                                                <option value="Under Assessment">Under Assessment</option>
+                                                <option value="Upgradation Ongoing">Upgradation Ongoing</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Bed Capacity</label>
+                                            <input type="number" id="health-in-beds" placeholder="e.g. 6">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Doctors / Staff Count</label>
+                                            <div style="display:flex; gap:0.5rem;">
+                                                <input type="number" id="health-in-doc" placeholder="Doctors (2)">
+                                                <input type="number" id="health-in-staff" placeholder="Staff (5)">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Contact Phone</label>
+                                            <input type="text" id="health-in-contact" placeholder="e.g. 0120-xxxxxx">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Services Published</label>
+                                        <input type="text" id="health-in-services" placeholder="e.g. OPD, Immunization, Maternal Care, Emergency Primary Care">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Healthcare Record</button>
+                                </form>
+
+                                <h4>Existing Healthcare Facilities</h4>
+                                <div class="admin-table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Facility</th>
+                                                <th>Type</th>
+                                                <th>District / Village</th>
+                                                <th>Beds / Staff</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-health-tbody">
+                                            <!-- Dynamically filled -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 7: Manage Panchayat Funds -->
+                    <div class="admin-panel-content" id="admin-panel-panchayat">
+                        <div class="glass-card" style="padding: 2rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+                                <div>
+                                    <h3 style="margin: 0;">Panchayat Financial Records & Datasets</h3>
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">Manage eGramSwaraj / Meri Panchayat financial records or import authorized CSV datasets</span>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <button class="btn btn-secondary btn-sm" id="admin-export-pf-btn">📥 Export CSV</button>
+                                    <button class="btn btn-secondary btn-sm" id="admin-show-import-btn">📤 Import CSV / JSON</button>
+                                </div>
+                            </div>
+
+                            <!-- CSV Import Section (Hidden by default) -->
+                            <div id="pf-import-box" style="display: none; background: rgba(0,0,0,0.3); border: 1px dashed var(--glass-border); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                                <h4 style="margin-top:0; color:var(--accent);">Import Authorized Panchayat Funds Records (CSV / JSON)</h4>
+                                <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;">
+                                    Paste authorized CSV content (with headers: <code>gram_panchayat, district, block_name, financial_year, scheme_name, sanctioned_amount, released_amount, expenditure, balance, work_name, work_status</code>) or upload a CSV file.
+                                </p>
+                                <textarea id="pf-import-csv-text" rows="5" style="width:100%; font-family:monospace; font-size:0.85rem; background:var(--bg-tertiary); color:var(--text-primary); border:1px solid var(--glass-border); border-radius:8px; padding:0.75rem; margin-bottom:1rem;" placeholder="gram_panchayat,district,block_name,financial_year,scheme_name,sanctioned_amount,released_amount,expenditure,balance,work_name,work_status
+Pilkhuwa Rural,Hapur,Pilkhuwa,2025-26,15th Finance Commission,500000,450000,420000,30000,CC Road Construction,Completed"></textarea>
+                                <div style="display:flex; gap:1rem; align-items:center;">
+                                    <button class="btn btn-primary btn-sm" id="pf-execute-import-btn">Parse & Import Records</button>
+                                    <button class="btn btn-outline btn-sm" id="pf-cancel-import-btn">Cancel</button>
+                                </div>
+                            </div>
+
+                            <h4 style="margin-bottom: 1rem; color: var(--accent);">Add Individual Panchayat Financial Entry</h4>
+                            <form id="admin-add-pf-form" class="custom-form" style="margin-bottom: 2rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Gram Panchayat Name *</label>
+                                        <input type="text" id="pf-in-gp" required placeholder="e.g. Pilkhuwa Rural">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Block *</label>
+                                        <input type="text" id="pf-in-block" required placeholder="e.g. Dhaulana">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>District *</label>
+                                        <select id="pf-in-dist" required>
+                                            <option value="Hapur">Hapur</option>
+                                            <option value="Ghaziabad">Ghaziabad</option>
+                                            <option value="Meerut">Meerut</option>
+                                            <option value="Bulandshahr">Bulandshahr</option>
+                                            <option value="Noida">Noida</option>
+                                            <option value="Greater Noida">Greater Noida</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Financial Year *</label>
+                                        <select id="pf-in-fy" required>
+                                            <option value="2026-27">2026-27</option>
+                                            <option value="2025-26" selected>2025-26</option>
+                                            <option value="2024-25">2024-25</option>
+                                            <option value="2023-24">2023-24</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Scheme / Fund Source *</label>
+                                        <input type="text" id="pf-in-scheme" required placeholder="e.g. 15th Finance Commission / Jal Jeevan">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Work Name</label>
+                                        <input type="text" id="pf-in-work" placeholder="e.g. Water Tank & Solar Sub-centre">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Sanctioned Amount (₹)</label>
+                                        <input type="number" step="0.01" id="pf-in-sanc" placeholder="e.g. 500000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Released Amount (₹)</label>
+                                        <input type="number" step="0.01" id="pf-in-rel" placeholder="e.g. 450000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Expenditure (₹)</label>
+                                        <input type="number" step="0.01" id="pf-in-exp" placeholder="e.g. 400000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Balance (₹)</label>
+                                        <input type="number" step="0.01" id="pf-in-bal" placeholder="e.g. 50000">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Work Status</label>
+                                        <select id="pf-in-status">
+                                            <option value="Completed">Completed</option>
+                                            <option value="In Progress">In Progress</option>
+                                            <option value="Approved">Approved</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Source Portal</label>
+                                        <input type="text" id="pf-in-source" value="eGramSwaraj" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Source Report Link</label>
+                                        <input type="url" id="pf-in-url" placeholder="https://egramswaraj.gov.in/">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Panchayat Fund Record</button>
+                            </form>
+
+                            <h4>Existing Panchayat Financial Records</h4>
+                            <div class="admin-table-container">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Gram Panchayat</th>
+                                            <th>District (Block)</th>
+                                            <th>FY</th>
+                                            <th>Scheme</th>
+                                            <th>Sanctioned</th>
+                                            <th>Released</th>
+                                            <th>Expenditure</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-pf-tbody">
+                                        <!-- Dynamically filled -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 8: Manage Website Logo / Branding -->
+                    <div class="admin-panel-content" id="admin-panel-branding">
+                        <div class="glass-card" style="padding: 2.5rem; max-width: 700px; margin: 0 auto;">
+                            <h3 style="margin-bottom: 0.5rem;">Website Logo & Branding Configuration</h3>
+                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2rem;">
+                                Manage the official Village Hub logo displayed across all pages, navigation headers, footers, and favicons. Changes persist in the <code>site_settings</code> database table.
+                            </p>
+
+                            <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 2rem; border-radius: 12px; text-align: center; margin-bottom: 2rem;">
+                                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">CURRENT EMBEDDED LOGO PREVIEW</div>
+                                <div style="display: inline-block; padding: 1.25rem 2rem; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--glass-border); margin-bottom: 1rem;">
+                                    <img id="branding-logo-preview" src="assets/logo.png" alt="Village Hub Logo Preview" style="height: 60px; width: auto; object-fit: contain; vertical-align: middle;">
+                                    <span style="margin-left: 1rem; font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700;">
+                                        <span class="brand-village">Village</span> <span class="brand-hub">Hub</span>
+                                    </span>
+                                </div>
+                                <div style="font-size: 0.8rem; color: #10b981;">✓ Official Emblem Active & Verified</div>
+                            </div>
+
+                            <form id="admin-branding-form" class="custom-form">
+                                <div class="form-group">
+                                    <label for="branding-logo-url">Logo Image Path or URL</label>
+                                    <input type="text" id="branding-logo-url" value="assets/logo.png" required placeholder="assets/logo.png or https://...">
+                                    <span style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem; display: block;">
+                                        Default: <code>assets/logo.png</code> (official attached high-resolution emblem).
+                                    </span>
+                                </div>
+                                <div class="form-group" style="margin-top: 1.25rem;">
+                                    <label for="branding-site-title">Website Brand Name</label>
+                                    <input type="text" id="branding-site-title" value="Village Hub" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">Save Branding Settings to Supabase</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </section>
         </div>
@@ -284,7 +1009,7 @@
     <footer class="footer">
         <div class="footer-container">
             <div class="footer-left">
-                <span class="footer-brand"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+                <span class="footer-brand"><img src="assets/logo.png" alt="Village Hub" class="footer-logo-img"> <span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
                 <p>&copy; 2026 Village Hub Community Initiative. All rights reserved. UP Panchayati Raj & Rural Development Partner.</p>
             </div>
             <div class="footer-right">

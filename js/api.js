@@ -77,7 +77,30 @@
             };
 
             try {
-                const response = await fetch(url, config);
+                let response;
+                try {
+                    response = await fetch(url, config);
+                } catch (fetchErr) {
+                    if (baseUrl === 'https://village-hub-api.onrender.com') {
+                        const fallbackUrl = 'https://villahe-hub-api.onrender.com' + path;
+                        response = await fetch(fallbackUrl, config);
+                        window.API_BASE_URL = 'https://villahe-hub-api.onrender.com';
+                    } else {
+                        throw fetchErr;
+                    }
+                }
+
+                if (response && response.status === 404 && baseUrl === 'https://village-hub-api.onrender.com') {
+                    try {
+                        const fallbackUrl = 'https://villahe-hub-api.onrender.com' + path;
+                        const fallbackResp = await fetch(fallbackUrl, config);
+                        if (fallbackResp.status !== 404) {
+                            response = fallbackResp;
+                            window.API_BASE_URL = 'https://villahe-hub-api.onrender.com';
+                        }
+                    } catch (_) {}
+                }
+
                 let data;
                 try {
                     data = await response.json();
@@ -223,6 +246,124 @@
         // --- Stats Endpoint ---
         async getStats() {
             return await this.request('/stats');
+        },
+
+        // ===== NEW MODULE API METHODS =====
+
+        // --- Kisan Corner: Crop Calendar ---
+        async getCropCalendar(params = {}) {
+            const q = new URLSearchParams(params).toString();
+            return await this.request('/kisan/crop-calendar' + (q ? '?' + q : ''));
+        },
+        async createCropCalendar(data) {
+            return await this.request('/kisan/crop-calendar', { method: 'POST', body: JSON.stringify(data) });
+        },
+        async updateCropCalendar(id, data) {
+            return await this.request(`/kisan/crop-calendar/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+        },
+        async deleteCropCalendar(id) {
+            return await this.request(`/kisan/crop-calendar/${id}`, { method: 'DELETE' });
+        },
+
+        // --- Kisan Corner: Mandi Prices ---
+        async getMandiPrices(params = {}) {
+            const q = new URLSearchParams(params).toString();
+            return await this.request('/kisan/mandi-prices' + (q ? '?' + q : ''));
+        },
+        async createMandiPrice(data) {
+            return await this.request('/kisan/mandi-prices', { method: 'POST', body: JSON.stringify(data) });
+        },
+        async updateMandiPrice(id, data) {
+            return await this.request(`/kisan/mandi-prices/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+        },
+        async deleteMandiPrice(id) {
+            return await this.request(`/kisan/mandi-prices/${id}`, { method: 'DELETE' });
+        },
+
+        // --- Kisan Corner: Weather Advisories ---
+        async getWeatherAdvisories(params = {}) {
+            const q = new URLSearchParams(params).toString();
+            return await this.request('/kisan/weather' + (q ? '?' + q : ''));
+        },
+        async createWeatherAdvisory(data) {
+            return await this.request('/kisan/weather', { method: 'POST', body: JSON.stringify(data) });
+        },
+        async updateWeatherAdvisory(id, data) {
+            return await this.request(`/kisan/weather/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+        },
+        async deleteWeatherAdvisory(id) {
+            return await this.request(`/kisan/weather/${id}`, { method: 'DELETE' });
+        },
+
+        // --- Kisan Corner: Crop Production Stats ---
+        async getProductionStats(params = {}) {
+            const q = new URLSearchParams(params).toString();
+            return await this.request('/kisan/production-stats' + (q ? '?' + q : ''));
+        },
+        async createProductionStat(data) {
+            return await this.request('/kisan/production-stats', { method: 'POST', body: JSON.stringify(data) });
+        },
+        async updateProductionStat(id, data) {
+            return await this.request(`/kisan/production-stats/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+        },
+        async deleteProductionStat(id) {
+            return await this.request(`/kisan/production-stats/${id}`, { method: 'DELETE' });
+        },
+
+        // --- Education: School Info ---
+        async getSchools(params = {}) {
+            const q = new URLSearchParams(params).toString();
+            return await this.request('/education/schools' + (q ? '?' + q : ''));
+        },
+        async createSchool(data) {
+            return await this.request('/education/schools', { method: 'POST', body: JSON.stringify(data) });
+        },
+        async updateSchool(id, data) {
+            return await this.request(`/education/schools/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+        },
+        async deleteSchool(id) {
+            return await this.request(`/education/schools/${id}`, { method: 'DELETE' });
+        },
+
+        // --- Education: Healthcare Facilities ---
+        async getHealthcare(params = {}) {
+            const q = new URLSearchParams(params).toString();
+            return await this.request('/education/healthcare' + (q ? '?' + q : ''));
+        },
+        async createHealthcare(data) {
+            return await this.request('/education/healthcare', { method: 'POST', body: JSON.stringify(data) });
+        },
+        async updateHealthcare(id, data) {
+            return await this.request(`/education/healthcare/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+        },
+        async deleteHealthcare(id) {
+            return await this.request(`/education/healthcare/${id}`, { method: 'DELETE' });
+        },
+
+        // --- Panchayat Funds ---
+        async getPanchayatFunds(params = {}) {
+            const q = new URLSearchParams(params).toString();
+            return await this.request('/panchayat-funds' + (q ? '?' + q : ''));
+        },
+        async createPanchayatFund(data) {
+            return await this.request('/panchayat-funds', { method: 'POST', body: JSON.stringify(data) });
+        },
+        async updatePanchayatFund(id, data) {
+            return await this.request(`/panchayat-funds/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+        },
+        async deletePanchayatFund(id) {
+            return await this.request(`/panchayat-funds/${id}`, { method: 'DELETE' });
+        },
+        async importPanchayatFunds(records) {
+            return await this.request('/panchayat-funds/import', { method: 'POST', body: JSON.stringify({ records }) });
+        },
+
+        // --- Site Settings ---
+        async getSettings() {
+            return await this.request('/settings');
+        },
+        async updateSetting(key, value) {
+            return await this.request(`/settings/${key}`, { method: 'PUT', body: JSON.stringify({ value }) });
         }
     };
 

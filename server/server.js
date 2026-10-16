@@ -69,6 +69,12 @@ app.use('/api/complaints', require('./routes/complaints'));
 app.use('/api/applications', require('./routes/applications'));
 app.use('/api/stats', require('./routes/stats'));
 
+// New Module Routes
+app.use('/api/kisan', require('./routes/kisan'));
+app.use('/api/education', require('./routes/education'));
+app.use('/api/panchayat-funds', require('./routes/panchayatFunds'));
+app.use('/api/settings', require('./routes/settings'));
+
 // Catch-all: serve index.html for any non-API, non-static route
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'index.html'));
