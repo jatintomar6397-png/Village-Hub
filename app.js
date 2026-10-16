@@ -1,19 +1,28 @@
 // ==========================================================================
-// 0. Global Sidebar Navigation Handlers (Immediately available)
+// 0. Global Sidebar Navigation Handlers (Immediately available & Debounced)
 // ==========================================================================
+let _lastSidebarToggle = 0;
 window.toggleSidebarMenu = function(e) {
-    if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+    if (e) {
+        if (typeof e.preventDefault === 'function') e.preventDefault();
+        if (typeof e.stopPropagation === 'function') e.stopPropagation();
+    }
+    const now = Date.now();
+    if (now - _lastSidebarToggle < 250) return;
+    _lastSidebarToggle = now;
+
     const btn = document.getElementById('hamburger-btn');
     const menu = document.getElementById('sidebar-menu');
     const overlay = document.getElementById('sidebar-overlay');
-    const isOpen = menu && menu.classList.contains('active');
+    if (!menu) return;
 
+    const isOpen = menu.classList.contains('active');
     if (btn) {
         btn.classList.toggle('active', !isOpen);
         btn.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
         btn.setAttribute('aria-label', !isOpen ? 'Close navigation menu' : 'Open navigation menu');
     }
-    if (menu) menu.classList.toggle('active', !isOpen);
+    menu.classList.toggle('active', !isOpen);
     if (overlay) overlay.classList.toggle('active', !isOpen);
     if (document.body) {
         document.body.style.overflow = !isOpen ? 'hidden' : '';
@@ -39,12 +48,13 @@ window.closeSidebarMenu = function() {
 document.addEventListener('DOMContentLoaded', () => {
     const API = window.VillageHubAPI || window.API;
 
-    // Attach listeners to hamburger button & overlay
+    // Attach listeners to hamburger button & overlay safely
     const hamburgerBtn = document.getElementById('hamburger-btn');
     const sidebarMenu = document.getElementById('sidebar-menu');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
 
     if (hamburgerBtn) {
+        hamburgerBtn.removeAttribute('onclick');
         hamburgerBtn.setAttribute('aria-label', 'Open navigation menu');
         hamburgerBtn.setAttribute('aria-expanded', 'false');
         hamburgerBtn.addEventListener('click', window.toggleSidebarMenu);
@@ -863,29 +873,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================================================
     // 7. Leaflet Interactive Map Module (`map.html` & `index.html`)
     // ==========================================================================
-    const mapElement = document.getElementById('village-map') || document.getElementById('village-map-index');
-    if (mapElement) {
-        const initLeafletMap = () => {
-            if (typeof L === 'undefined') {
-                // If Leaflet library is still loading from CDN, retry every 100ms up to 3 seconds
-                let tries = 0;
-                const checkInterval = setInterval(() => {
-                    tries++;
-                    if (typeof L !== 'undefined') {
-                        clearInterval(checkInterval);
-                        setupMap();
-                    } else if (tries > 30) {
-                        clearInterval(checkInterval);
-                        renderMapFallback();
-                    }
-                }, 100);
-            } else {
-                setupMap();
-            }
-        };
-
-        const renderMapFallback = () => {
-            mapElement.innerHTML = `
+    const mapElements = [document.getElementById('village-map'), document.getElementById('village-map-index')].filter(Boolean);
+    if (mapElements.length > 0) {
+        const renderMapFallback = (targetEl) => {
+            if (!targetEl) return;
+            targetEl.innerHTML = `
                 <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; min-height:400px; padding:2rem; text-align:center;">
                     <span style="font-size:3rem; margin-bottom:1rem;">🗺️</span>
                     <h3 style="color:var(--text-primary); margin-bottom:0.5rem;">Western UP Interactive Village Map</h3>
@@ -897,11 +889,11 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         };
 
-        const setupMap = () => {
+        const setupMapFor = (targetEl) => {
             try {
-                if (mapElement._leaflet_id) return;
+                if (!targetEl || targetEl._leaflet_id) return;
 
-                const map = L.map(mapElement.id, {
+                const map = L.map(targetEl.id, {
                     scrollWheelZoom: false
                 }).setView([28.6500, 77.6500], 9);
 
@@ -937,10 +929,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Render synchronous verified villages immediately
                 renderMarkers(getVillagesSync());
 
-                // Invalidate size after layout completes to avoid grey/blank tiles
-                setTimeout(() => {
+                // Invalidate size in multiple intervals to ensure proper sizing after font/layout load
+                [100, 300, 600, 1200].forEach(delay => {
+                    setTimeout(() => {
+                        try { map.invalidateSize(); } catch (_) {}
+                    }, delay);
+                });
+
+                window.addEventListener('resize', () => {
                     try { map.invalidateSize(); } catch (_) {}
-                }, 250);
+                });
 
                 // Update if API returns additional data
                 getVillages().then(villages => {
@@ -952,7 +950,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             } catch (err) {
                 console.error('Leaflet initialization error:', err);
-                renderMapFallback();
+                renderMapFallback(targetEl);
+            }
+        };
+
+        const setupAllMaps = () => {
+            mapElements.forEach(setupMapFor);
+        };
+
+        const initLeafletMap = () => {
+            if (typeof L === 'undefined') {
+                if (!document.querySelector('script[src*="leaflet.js"]')) {
+                    const script = document.createElement('script');
+                    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                    script.onload = () => setupAllMaps();
+                    document.head.appendChild(script);
+                }
+                let tries = 0;
+                const checkInterval = setInterval(() => {
+                    tries++;
+                    if (typeof L !== 'undefined') {
+                        clearInterval(checkInterval);
+                        setupAllMaps();
+                    } else if (tries > 30) {
+                        clearInterval(checkInterval);
+                        mapElements.forEach(renderMapFallback);
+                    }
+                }, 100);
+            } else {
+                setupAllMaps();
             }
         };
 

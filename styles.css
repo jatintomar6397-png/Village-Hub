@@ -1497,7 +1497,7 @@ a {
     }
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 900px) {
     .nav-links {
         display: none !important;
     }
@@ -1545,10 +1545,10 @@ a {
     align-items: center;
     justify-content: center;
     background: transparent;
-    border: 1px solid transparent;
+    border: 1px solid var(--glass-border);
     cursor: pointer;
     padding: 6px;
-    z-index: 1005;
+    z-index: 1025;
     flex-direction: column;
     gap: 5px;
     width: 42px;
@@ -1561,7 +1561,7 @@ a {
 }
 .hamburger-btn:hover {
     background: var(--accent-light);
-    border-color: var(--glass-border);
+    border-color: var(--accent);
 }
 .hamburger-btn:focus-visible {
     outline: 2px solid var(--accent);
@@ -1591,8 +1591,8 @@ a {
     display: none;
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 1001;
+    background: rgba(0,0,0,0.65);
+    z-index: 1010;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     pointer-events: auto;
@@ -1605,16 +1605,17 @@ a {
 .sidebar-menu {
     position: fixed;
     top: 0;
-    right: -320px;
-    width: 300px;
+    right: -340px;
+    width: 320px;
+    max-width: 85vw;
     height: 100vh;
     background: var(--bg-secondary);
     border-left: 1px solid var(--glass-border);
-    z-index: 1003;
+    z-index: 1020;
     transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 5.5rem 1.5rem 2rem;
+    padding: 1.5rem 1.25rem 2rem;
     overflow-y: auto;
-    box-shadow: -6px 0 28px rgba(0,0,0,0.4);
+    box-shadow: -8px 0 32px rgba(0,0,0,0.5);
     pointer-events: auto;
 }
 .sidebar-menu.active {

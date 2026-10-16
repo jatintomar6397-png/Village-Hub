@@ -10,7 +10,43 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
     <!-- Main Style Sheet -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=5.0">
+    <script>
+        let _sidebarToggleTimer = 0;
+        window.toggleSidebarMenu = function(e) {
+            if (e) {
+                if (typeof e.preventDefault === 'function') e.preventDefault();
+                if (typeof e.stopPropagation === 'function') e.stopPropagation();
+            }
+            const now = Date.now();
+            if (now - _sidebarToggleTimer < 250) return;
+            _sidebarToggleTimer = now;
+            const btn = document.getElementById('hamburger-btn');
+            const menu = document.getElementById('sidebar-menu');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (!menu) return;
+            const isOpen = menu.classList.contains('active');
+            if (btn) {
+                btn.classList.toggle('active', !isOpen);
+                btn.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
+            }
+            menu.classList.toggle('active', !isOpen);
+            if (overlay) overlay.classList.toggle('active', !isOpen);
+            if (document.body) document.body.style.overflow = !isOpen ? 'hidden' : '';
+        };
+        window.closeSidebarMenu = function() {
+            const btn = document.getElementById('hamburger-btn');
+            const menu = document.getElementById('sidebar-menu');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (btn) {
+                btn.classList.remove('active');
+                btn.setAttribute('aria-expanded', 'false');
+            }
+            if (menu) menu.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
+            if (document.body) document.body.style.overflow = '';
+        };
+    </script>
 </head>
 <body>
     <!-- Toast Notifications -->
@@ -30,11 +66,9 @@
                 </a>
             </div>
             <nav class="nav-middle">
-                <ul class="nav-links">
+                                <ul class="nav-links">
                     <li><a href="index.html">Home</a></li>
                     <li><a href="kisan.html">Kisan Corner</a></li>
-                    <li><a href="education.html">Education</a></li>
-                    <li><a href="panchayat-funds.html">Panchayat Funds</a></li>
                     <li><a href="schemes.html">Govt Schemes</a></li>
                     <li><a href="villages.html">Villages List</a></li>
                     <li><a href="complaint.html">Register Complaint</a></li>
@@ -56,8 +90,8 @@
         </div>
     </header>
 
-        <!-- Hamburger Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+            <!-- Hamburger Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="window.closeSidebarMenu()"></div>
     <!-- Sidebar Menu -->
     <div class="sidebar-menu" id="sidebar-menu">
         <div class="sidebar-header">
@@ -67,18 +101,18 @@
         </div>
         <ul class="sidebar-links">
             <li><a href="index.html"><span class="sidebar-icon">🏠</span> Home</a></li>
-            <li><a href="dashboard.html"><span class="sidebar-icon">📊</span> Dashboard</a></li>
-            <li><a href="map.html"><span class="sidebar-icon">🗺️</span> Live Map</a></li>
             <li><a href="kisan.html"><span class="sidebar-icon">🌾</span> Kisan Corner</a></li>
-            <li><a href="education.html"><span class="sidebar-icon">🏫</span> Education</a></li>
+            <li><a href="education.html"><span class="sidebar-icon">🏫</span> Education & Healthcare</a></li>
             <li><a href="panchayat-funds.html"><span class="sidebar-icon">💰</span> Panchayat Funds</a></li>
+            <li><a href="register.html"><span class="sidebar-icon">📝</span> Citizen Registration</a></li>
             <li><a href="complaint.html"><span class="sidebar-icon">📢</span> Register Complaint</a></li>
-            <li><a href="register.html"><span class="sidebar-icon">📝</span> Register / Signup</a></li>
             <li><a href="schemes.html"><span class="sidebar-icon">📜</span> Govt Schemes</a></li>
             <li><a href="villages.html"><span class="sidebar-icon">🏘️</span> Villages List</a></li>
-            <li><a href="admin.html"><span class="sidebar-icon">🔒</span> Admin Panel</a></li>
-            <li><a href="benefits.html"><span class="sidebar-icon">🎯</span> Benefits</a></li>
-            <li><a href="terms.html"><span class="sidebar-icon">⚖️</span> Terms</a></li>
+            <li><a href="map.html"><span class="sidebar-icon">🗺️</span> Live Village Map</a></li>
+            <li><a href="dashboard.html"><span class="sidebar-icon">📊</span> Progress Dashboard</a></li>
+            <li><a href="admin.html" class="active"><span class="sidebar-icon">🔒</span> Admin Management</a></li>
+            <li><a href="benefits.html"><span class="sidebar-icon">🎯</span> Community Benefits</a></li>
+            <li><a href="terms.html"><span class="sidebar-icon">⚖️</span> Terms & Transparency</a></li>
         </ul>
     </div>
 
@@ -166,7 +200,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="admin-villages-tbody">
-                                        <!-- Rendered dynamically by app.js -->
+                                        <!-- Rendered dynamically by app.js?v=5.0 -->
                                     </tbody>
                                 </table>
                             </div>
@@ -200,7 +234,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="admin-complaints-tbody">
-                                        <!-- Rendered dynamically by app.js -->
+                                        <!-- Rendered dynamically by app.js?v=5.0 -->
                                     </tbody>
                                 </table>
                             </div>
@@ -233,7 +267,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="admin-apps-tbody">
-                                        <!-- Rendered dynamically by app.js -->
+                                        <!-- Rendered dynamically by app.js?v=5.0 -->
                                     </tbody>
                                 </table>
                             </div>
@@ -1067,6 +1101,6 @@ Pilkhuwa Rural,Hapur,Pilkhuwa,2025-26,15th Finance Commission,500000,450000,4200
 
     <script src="config.js"></script>
     <script src="js/api.js"></script>
-    <script src="app.js"></script>
+    <script src="app.js?v=5.0"></script>
 </body>
 </html>
