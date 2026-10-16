@@ -34,7 +34,7 @@
                 </ul>
             </nav>
             <div class="nav-right">
-                <button class="hamburger-btn" id="hamburger-btn" title="Menu"><span></span><span></span><span></span></button>
+                <button class="hamburger-btn" id="hamburger-btn" title="Navigation Menu" aria-label="Open navigation menu" aria-expanded="false" onclick="window.toggleSidebarMenu(event)"><span></span><span></span><span></span></button>
                 <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Light/Dark Theme">
                     <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25m-13.5 0H3m15.364-6.364l-1.591 1.591M6.561 17.439l-1.591 1.591m12.728 0l-1.591-1.591M6.561 6.561L4.97 4.97M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" /></svg>
                 </button>
@@ -49,6 +49,7 @@
         <div class="sidebar-header">
             <img src="assets/logo.png" alt="Village Hub Logo" class="sidebar-logo-img">
             <span class="brand-name"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+            <button class="sidebar-close-btn" aria-label="Close navigation menu" onclick="window.closeSidebarMenu()">&times;</button>
         </div>
         <ul class="sidebar-links">
             <li><a href="index.html"><span class="sidebar-icon">🏠</span> Home</a></li>

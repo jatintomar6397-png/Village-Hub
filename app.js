@@ -2,36 +2,79 @@ document.addEventListener('DOMContentLoaded', () => {
     const API = window.VillageHubAPI || window.API;
 
     // ==========================================================================
-    // 0. Hamburger Sidebar Menu Toggle
+    // 0. Robust Hamburger Sidebar Menu Toggle (Desktop & Mobile)
     // ==========================================================================
     const hamburgerBtn = document.getElementById('hamburger-btn');
     const sidebarMenu = document.getElementById('sidebar-menu');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
 
-    const toggleSidebar = () => {
-        hamburgerBtn && hamburgerBtn.classList.toggle('active');
-        sidebarMenu && sidebarMenu.classList.toggle('active');
-        sidebarOverlay && sidebarOverlay.classList.toggle('active');
+    window.toggleSidebarMenu = function(e) {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        const btn = document.getElementById('hamburger-btn');
+        const menu = document.getElementById('sidebar-menu');
+        const overlay = document.getElementById('sidebar-overlay');
+        const isOpen = menu && menu.classList.contains('active');
+
+        if (btn) {
+            btn.classList.toggle('active', !isOpen);
+            btn.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
+            btn.setAttribute('aria-label', !isOpen ? 'Close navigation menu' : 'Open navigation menu');
+        }
+        if (menu) menu.classList.toggle('active', !isOpen);
+        if (overlay) overlay.classList.toggle('active', !isOpen);
+        document.body.style.overflow = !isOpen ? 'hidden' : '';
     };
 
-    if (hamburgerBtn) hamburgerBtn.addEventListener('click', toggleSidebar);
-    if (sidebarOverlay) sidebarOverlay.addEventListener('click', toggleSidebar);
+    window.closeSidebarMenu = function() {
+        const btn = document.getElementById('hamburger-btn');
+        const menu = document.getElementById('sidebar-menu');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (btn) {
+            btn.classList.remove('active');
+            btn.setAttribute('aria-expanded', 'false');
+            btn.setAttribute('aria-label', 'Open navigation menu');
+        }
+        if (menu) menu.classList.remove('active');
+        if (overlay) overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+
+    if (hamburgerBtn) {
+        hamburgerBtn.setAttribute('aria-label', 'Open navigation menu');
+        hamburgerBtn.setAttribute('aria-expanded', 'false');
+        hamburgerBtn.addEventListener('click', window.toggleSidebarMenu);
+    }
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', window.closeSidebarMenu);
+    }
+
+    // Attach to any close buttons inside sidebar
+    document.querySelectorAll('.sidebar-close-btn').forEach(btn => {
+        btn.addEventListener('click', window.closeSidebarMenu);
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sidebarMenu && sidebarMenu.classList.contains('active')) {
+            window.closeSidebarMenu();
+        }
+    });
 
     // Highlight active page in sidebar & navbar and close menu on link click
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     document.querySelectorAll('.sidebar-links a, .nav-links a').forEach(link => {
-        if (link.getAttribute('href') === currentPage) {
+        const href = link.getAttribute('href');
+        if (href === currentPage || (currentPage === '' && href === 'index.html')) {
             link.classList.add('active');
         }
     });
 
     document.querySelectorAll('.sidebar-links a').forEach(link => {
         link.addEventListener('click', () => {
-            if (sidebarMenu && sidebarMenu.classList.contains('active')) {
-                toggleSidebar();
-            }
+            window.closeSidebarMenu();
         });
     });
+
 
     // ==========================================================================
     // 1. Census-Verified Dataset of 46 Villages (Frontend Fallback)
@@ -130,28 +173,43 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getVillages = async () => {
-        if (_villagesCache) return _villagesCache;
+        if (_villagesCache && _villagesCache.length > 0) return _villagesCache;
         try {
-            const result = await window.VillageHubAPI.getVillages();
-            if (result.success && result.data && result.data.length > 0) {
-                _villagesCache = result.data.map(mapVillage);
-                _apiOnline = true;
+            const apiObj = window.VillageHubAPI || window.API;
+            if (apiObj && typeof apiObj.getVillages === 'function') {
+                const result = await apiObj.getVillages();
+                if (result && result.success && Array.isArray(result.data) && result.data.length > 0) {
+                    _villagesCache = result.data.map(mapVillage);
+                    _apiOnline = true;
+                    return _villagesCache;
+                }
+            }
+        } catch (err) {
+            console.warn('API getVillages failed, using verified Census dataset fallback:', err);
+        }
+        // Fallback to localStorage / DEFAULT_VILLAGES
+        _apiOnline = false;
+        try {
+            const existing = JSON.parse(localStorage.getItem('vh_villages'));
+            if (Array.isArray(existing) && existing.length >= 40) {
+                _villagesCache = existing;
                 return _villagesCache;
             }
-        } catch {}
-        // Fallback to localStorage/default
-        _apiOnline = false;
-        const existing = JSON.parse(localStorage.getItem('vh_villages')) || [];
-        _villagesCache = (existing.length >= 40 ? existing : DEFAULT_VILLAGES);
+        } catch (_) {}
+        _villagesCache = DEFAULT_VILLAGES;
         return _villagesCache;
     };
 
-    // Synchronous fallback for immediate rendering
+    // Synchronous fallback for immediate rendering — ALWAYS returns valid array of 46 villages
     const getVillagesSync = () => {
-        if (_villagesCache) return _villagesCache;
-        const existing = JSON.parse(localStorage.getItem('vh_villages')) || [];
-        return (existing.length >= 40 ? existing : DEFAULT_VILLAGES);
+        if (_villagesCache && _villagesCache.length > 0) return _villagesCache;
+        try {
+            const existing = JSON.parse(localStorage.getItem('vh_villages'));
+            if (Array.isArray(existing) && existing.length >= 40) return existing;
+        } catch (_) {}
+        return DEFAULT_VILLAGES;
     };
+
 
     const getComplaints = () => JSON.parse(localStorage.getItem('vh_complaints')) || [];
     const setComplaints = (data) => localStorage.setItem('vh_complaints', JSON.stringify(data));
@@ -727,13 +785,14 @@ document.addEventListener('DOMContentLoaded', () => {
         let query = '';
         let currentFilter = 'all';
         let allVillages = getVillagesSync();
+        if (!allVillages || allVillages.length === 0) allVillages = DEFAULT_VILLAGES;
 
         const updateGrid = () => {
             const filtered = allVillages.filter(v => {
                 const matchesSearch = v.name.toLowerCase().includes(query) ||
                                       v.district.toLowerCase().includes(query) ||
                                       (v.tehsil && v.tehsil.toLowerCase().includes(query)) ||
-                                      v.focus.toLowerCase().includes(query);
+                                      (v.focus && v.focus.toLowerCase().includes(query));
                 const matchesFilter = currentFilter === 'all' ||
                                       v.status === currentFilter ||
                                       v.district.toLowerCase().includes(currentFilter.toLowerCase());
@@ -754,10 +813,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateGrid();
 
-        // Load from API asynchronously
+        // Load from API asynchronously and update if data is available
         getVillages().then(villages => {
-            allVillages = villages;
-            updateGrid();
+            if (villages && villages.length > 0) {
+                allVillages = villages;
+                updateGrid();
+            }
         });
 
         if (searchInput) {
@@ -771,7 +832,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pill.addEventListener('click', () => {
                 filterPills.forEach(p => p.classList.remove('active'));
                 pill.classList.add('active');
-                currentFilter = pill.getAttribute('data-filter');
+                currentFilter = pill.getAttribute('data-filter') || 'all';
                 updateGrid();
             });
         });
@@ -781,60 +842,119 @@ document.addEventListener('DOMContentLoaded', () => {
     const homeFeaturedGrid = document.getElementById('index-featured-villages');
     if (homeFeaturedGrid) {
         const renderFeatured = (villages) => {
+            if (!villages || villages.length === 0) villages = DEFAULT_VILLAGES;
             homeFeaturedGrid.innerHTML = villages.slice(0, 6).map(renderVillageCardHTML).join('');
         };
         renderFeatured(getVillagesSync());
-        getVillages().then(v => renderFeatured(v));
+        getVillages().then(v => { if (v && v.length > 0) renderFeatured(v); });
     }
 
     // Dynamic Stats Count Update
     const statVillagesCount = document.getElementById('stat-villages-count');
     if (statVillagesCount) {
         statVillagesCount.innerText = `${getVillagesSync().length}+`;
-        getVillages().then(v => { statVillagesCount.innerText = `${v.length}+`; });
+        getVillages().then(v => { if (v && v.length > 0) statVillagesCount.innerText = `${v.length}+`; });
     }
 
     // ==========================================================================
     // 7. Leaflet Interactive Map Module (`map.html` & `index.html`)
     // ==========================================================================
     const mapElement = document.getElementById('village-map') || document.getElementById('village-map-index');
-    if (mapElement && typeof L !== 'undefined') {
-        const map = L.map(mapElement.id).setView([28.6500, 77.6500], 9);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '&copy; OpenStreetMap contributors | Western UP Panchayati Raj & Village Hub'
-        }).addTo(map);
-
-        const renderMarkers = (villages) => {
-            villages.forEach(v => {
-                if (v.lat && v.lng) {
-                    const marker = L.marker([v.lat, v.lng]).addTo(map);
-                    const popupContent = `
-                        <div class="map-popup-card">
-                            <h4>${v.name} (${v.district})</h4>
-                            <p><strong>Tehsil:</strong> ${v.tehsil || 'Rural'}</p>
-                            <p><strong>Census Pop:</strong> ${v.pop}</p>
-                            <p><strong>Official Issue:</strong> ${v.focus}</p>
-                            <p><strong>Status:</strong> ${v.status} (${v.progress}%)</p>
-                            <a href="javascript:void(0)" onclick="showVillageDetail('${v.id}')" style="color:var(--accent); font-weight:600; font-size:0.8rem;">View Details &rarr;</a>
-                        </div>
-                    `;
-                    marker.bindPopup(popupContent);
-                }
-            });
+    if (mapElement) {
+        const initLeafletMap = () => {
+            if (typeof L === 'undefined') {
+                // If Leaflet library is still loading from CDN, retry every 100ms up to 3 seconds
+                let tries = 0;
+                const checkInterval = setInterval(() => {
+                    tries++;
+                    if (typeof L !== 'undefined') {
+                        clearInterval(checkInterval);
+                        setupMap();
+                    } else if (tries > 30) {
+                        clearInterval(checkInterval);
+                        renderMapFallback();
+                    }
+                }, 100);
+            } else {
+                setupMap();
+            }
         };
 
-        renderMarkers(getVillagesSync());
-        // Also load from API for most current data
-        getVillages().then(villages => {
-            // Clear and re-add if API returned different data
-            if (_apiOnline) {
-                map.eachLayer(layer => { if (layer instanceof L.Marker) map.removeLayer(layer); });
-                renderMarkers(villages);
+        const renderMapFallback = () => {
+            mapElement.innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; min-height:400px; padding:2rem; text-align:center;">
+                    <span style="font-size:3rem; margin-bottom:1rem;">🗺️</span>
+                    <h3 style="color:var(--text-primary); margin-bottom:0.5rem;">Western UP Interactive Village Map</h3>
+                    <p style="color:var(--text-secondary); max-width:550px; margin-bottom:1.25rem;">
+                        46 census-verified villages across Hapur, Ghaziabad, Meerut, Bulandshahr, Noida, and Greater Noida are loaded and active.
+                    </p>
+                    <a href="villages.html" class="btn btn-primary">Browse Villages Directory (${getVillagesSync().length} Villages) &rarr;</a>
+                </div>
+            `;
+        };
+
+        const setupMap = () => {
+            try {
+                if (mapElement._leaflet_id) return;
+
+                const map = L.map(mapElement.id, {
+                    scrollWheelZoom: false
+                }).setView([28.6500, 77.6500], 9);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors | Western UP Panchayati Raj & Village Hub'
+                }).addTo(map);
+
+                const renderMarkers = (villages) => {
+                    if (!villages || villages.length === 0) return;
+                    villages.forEach(v => {
+                        const lat = Number(v.lat || v.latitude);
+                        const lng = Number(v.lng || v.longitude);
+                        if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+                            const marker = L.marker([lat, lng]).addTo(map);
+                            const popupContent = `
+                                <div class="map-popup-card" style="padding:0.4rem; min-width:200px;">
+                                    <h4 style="color:var(--accent); margin-bottom:0.25rem;">${v.name} (${v.district})</h4>
+                                    <p style="margin:0.2rem 0; font-size:0.85rem;"><strong>Tehsil:</strong> ${v.tehsil || 'Rural'}</p>
+                                    <p style="margin:0.2rem 0; font-size:0.85rem;"><strong>Census Pop:</strong> ${v.pop || v.population}</p>
+                                    <p style="margin:0.2rem 0; font-size:0.85rem;"><strong>Official Issue:</strong> ${v.focus || v.problems}</p>
+                                    <p style="margin:0.2rem 0; font-size:0.85rem;"><strong>Status:</strong> ${v.status} (${v.progress}%)</p>
+                                    <div style="margin-top:0.5rem;">
+                                        <a href="javascript:void(0)" onclick="showVillageDetail('${v.id}')" style="color:var(--accent); font-weight:600; font-size:0.82rem; text-decoration:none;">View Details &rarr;</a>
+                                    </div>
+                                </div>
+                            `;
+                            marker.bindPopup(popupContent);
+                        }
+                    });
+                };
+
+                // Render synchronous verified villages immediately
+                renderMarkers(getVillagesSync());
+
+                // Invalidate size after layout completes to avoid grey/blank tiles
+                setTimeout(() => {
+                    try { map.invalidateSize(); } catch (_) {}
+                }, 250);
+
+                // Update if API returns additional data
+                getVillages().then(villages => {
+                    if (villages && villages.length > 0 && _apiOnline) {
+                        map.eachLayer(layer => { if (layer instanceof L.Marker) map.removeLayer(layer); });
+                        renderMarkers(villages);
+                        try { map.invalidateSize(); } catch (_) {}
+                    }
+                });
+            } catch (err) {
+                console.error('Leaflet initialization error:', err);
+                renderMapFallback();
             }
-        });
+        };
+
+        initLeafletMap();
     }
+
 
     // ==========================================================================
     // 8. Admin Control Panel Controller — API-backed

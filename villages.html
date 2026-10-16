@@ -11,6 +11,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <!-- Main Stylesheet with Cache-Busting -->
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="styles.css?v=4.0">
     <style>
         svg { max-width: 20px !important; max-height: 20px !important; width: 20px !important; height: 20px !important; flex-shrink: 0 !important; }
@@ -47,7 +49,7 @@
                 </ul>
             </nav>
             <div class="nav-right">
-                                <button class="hamburger-btn" id="hamburger-btn" title="Menu">
+                                <button class="hamburger-btn" id="hamburger-btn" title="Navigation Menu" aria-label="Open navigation menu" aria-expanded="false" onclick="window.toggleSidebarMenu(event)">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -68,6 +70,7 @@
         <div class="sidebar-header">
             <img src="assets/logo.png" alt="Village Hub Logo" class="sidebar-logo-img">
             <span class="brand-name"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+            <button class="sidebar-close-btn" aria-label="Close navigation menu" onclick="window.closeSidebarMenu()">&times;</button>
         </div>
         <ul class="sidebar-links">
             <li><a href="index.html"><span class="sidebar-icon">🏠</span> Home</a></li>
@@ -191,6 +194,8 @@
         </div>
     </div>
 
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="config.js"></script>
     <script src="js/api.js"></script>
     <script src="app.js"></script>

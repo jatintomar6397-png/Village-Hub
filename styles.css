@@ -350,13 +350,14 @@ a {
     left: 0;
     width: 100%;
     height: 80px;
-    z-index: 100;
+    z-index: 1002;
     background: rgba(11, 15, 25, 0.85);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--glass-border);
     transition: background var(--transition-normal);
 }
+
 
 [data-theme="light"] .navbar {
     background: rgba(255, 255, 255, 0.9);
@@ -451,6 +452,8 @@ a {
 .nav-middle {
     display: flex;
     align-items: center;
+    flex-shrink: 1;
+    min-width: 0;
 }
 
 .nav-links {
@@ -458,6 +461,7 @@ a {
     align-items: center;
     gap: 1.1rem;
     list-style: none;
+    flex-wrap: nowrap;
 }
 
 .nav-links a {
@@ -466,6 +470,7 @@ a {
     color: var(--text-secondary);
     position: relative;
     padding: 0.4rem 0;
+    white-space: nowrap;
 }
 
 .nav-links a:hover {
@@ -491,7 +496,10 @@ a {
 .nav-right {
     display: flex;
     align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
 }
+
 
 .nav-login-btn {
     padding: 0.5rem 1.25rem;
@@ -1480,6 +1488,21 @@ a {
 }
 
 /* Responsive Media Queries */
+@media (max-width: 1200px) {
+    .nav-links {
+        gap: 0.8rem;
+    }
+    .nav-links a {
+        font-size: 0.82rem;
+    }
+}
+
+@media (max-width: 1080px) {
+    .nav-links {
+        display: none !important;
+    }
+}
+
 @media (max-width: 1024px) {
     .villages-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -1506,29 +1529,51 @@ a {
         grid-template-columns: repeat(2, 1fr);
     }
     .nav-links {
-        display: none;
+        display: none !important;
+    }
+    .nav-login-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
     }
 }
 
 /* ==========================================================================
-   Hamburger Menu & Mobile Sidebar
+   Hamburger Menu & Mobile Sidebar (Desktop + Mobile)
    ========================================================================== */
 .hamburger-btn {
-    display: flex;
-    background: none;
-    border: none;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid transparent;
     cursor: pointer;
     padding: 6px;
-    z-index: 1001;
+    z-index: 1005;
     flex-direction: column;
     gap: 5px;
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    pointer-events: auto !important;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: var(--transition-fast);
+}
+.hamburger-btn:hover {
+    background: var(--accent-light);
+    border-color: var(--glass-border);
+}
+.hamburger-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 .hamburger-btn span {
     display: block;
-    width: 24px;
+    width: 22px;
     height: 2.5px;
     background: var(--text-primary);
     border-radius: 2px;
+    pointer-events: none;
     transition: var(--transition-fast);
 }
 .hamburger-btn.active span:nth-child(1) {
@@ -1546,10 +1591,11 @@ a {
     display: none;
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 999;
+    background: rgba(0,0,0,0.6);
+    z-index: 1001;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
+    pointer-events: auto;
 }
 .sidebar-overlay.active {
     display: block;
@@ -1559,16 +1605,17 @@ a {
 .sidebar-menu {
     position: fixed;
     top: 0;
-    right: -300px;
-    width: 280px;
+    right: -320px;
+    width: 300px;
     height: 100vh;
     background: var(--bg-secondary);
     border-left: 1px solid var(--glass-border);
-    z-index: 1000;
+    z-index: 1003;
     transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 5rem 1.5rem 2rem;
+    padding: 5.5rem 1.5rem 2rem;
     overflow-y: auto;
-    box-shadow: -4px 0 24px rgba(0,0,0,0.3);
+    box-shadow: -6px 0 28px rgba(0,0,0,0.4);
+    pointer-events: auto;
 }
 .sidebar-menu.active {
     right: 0;
@@ -1581,6 +1628,23 @@ a {
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--glass-border);
 }
+.sidebar-close-btn {
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: var(--transition-fast);
+}
+.sidebar-close-btn:hover {
+    color: var(--text-primary);
+    background: var(--accent-light);
+}
+
 .sidebar-menu .sidebar-header .logo-init {
     background: linear-gradient(135deg, var(--accent), var(--accent-hover));
     color: #000;

@@ -50,7 +50,7 @@
                 </ul>
             </nav>
             <div class="nav-right">
-                                <button class="hamburger-btn" id="hamburger-btn" title="Menu">
+                                <button class="hamburger-btn" id="hamburger-btn" title="Navigation Menu" aria-label="Open navigation menu" aria-expanded="false" onclick="window.toggleSidebarMenu(event)">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -71,6 +71,7 @@
         <div class="sidebar-header">
             <img src="assets/logo.png" alt="Village Hub Logo" class="sidebar-logo-img">
             <span class="brand-name"><span class="brand-village">Village</span> <span class="brand-hub">Hub</span></span>
+            <button class="sidebar-close-btn" aria-label="Close navigation menu" onclick="window.closeSidebarMenu()">&times;</button>
         </div>
         <ul class="sidebar-links">
             <li><a href="index.html"><span class="sidebar-icon">🏠</span> Home</a></li>
