@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "framework": null,
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
