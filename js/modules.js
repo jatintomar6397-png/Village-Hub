@@ -7,6 +7,8 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+    const API = window.VillageHubAPI || window.API;
+
     // -------------------------------------------------------------------------
     // Utility helpers
     // -------------------------------------------------------------------------

@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const API = window.VillageHubAPI || window.API;
+
     // ==========================================================================
     // 0. Hamburger Sidebar Menu Toggle
     // ==========================================================================
@@ -15,12 +17,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hamburgerBtn) hamburgerBtn.addEventListener('click', toggleSidebar);
     if (sidebarOverlay) sidebarOverlay.addEventListener('click', toggleSidebar);
 
-    // Highlight active page in sidebar & navbar
+    // Highlight active page in sidebar & navbar and close menu on link click
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     document.querySelectorAll('.sidebar-links a, .nav-links a').forEach(link => {
         if (link.getAttribute('href') === currentPage) {
             link.classList.add('active');
         }
+    });
+
+    document.querySelectorAll('.sidebar-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            if (sidebarMenu && sidebarMenu.classList.contains('active')) {
+                toggleSidebar();
+            }
+        });
     });
 
     // ==========================================================================

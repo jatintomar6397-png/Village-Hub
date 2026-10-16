@@ -418,6 +418,7 @@
 
     // Export to global window
     window.VillageHubAPI = VillageHubAPI;
+    window.API = VillageHubAPI;
     window.Toast = Toast;
 
 })();

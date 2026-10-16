@@ -402,34 +402,34 @@ a {
 
 .brand-logo-img,
 .nav-logo-img {
-    height: 42px;
-    width: auto;
-    max-height: 42px;
+    height: 44px;
+    width: 44px;
     object-fit: contain;
-    border-radius: 8px;
+    border-radius: 50%;
     display: inline-block;
     vertical-align: middle;
+    filter: drop-shadow(0 2px 6px rgba(245, 158, 11, 0.2));
 }
 
 .sidebar-logo-img {
     height: 38px;
-    width: auto;
-    max-height: 38px;
+    width: 38px;
     object-fit: contain;
-    border-radius: 8px;
+    border-radius: 50%;
     display: inline-block;
     vertical-align: middle;
+    filter: drop-shadow(0 2px 5px rgba(245, 158, 11, 0.2));
 }
 
 .footer-logo-img {
     height: 32px;
-    width: auto;
-    max-height: 32px;
+    width: 32px;
     object-fit: contain;
-    border-radius: 6px;
+    border-radius: 50%;
     display: inline-block;
     vertical-align: middle;
     margin-right: 0.5rem;
+    filter: drop-shadow(0 1px 4px rgba(245, 158, 11, 0.2));
 }
 
 .brand-name {

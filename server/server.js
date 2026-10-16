@@ -8,6 +8,9 @@ const { isConfigured, testConnection } = require('./config/supabase');
 
 const app = express();
 
+// Trust reverse proxy (Render / Cloudflare) so req.ip is the actual client IP
+app.set('trust proxy', 1);
+
 // Configurable CORS
 const rawAllowed = process.env.ALLOWED_ORIGINS || '*';
 const allowedOrigins = rawAllowed.split(',').map(o => o.trim()).filter(Boolean);
@@ -51,10 +54,15 @@ app.get('/api/health', async (req, res) => {
     });
 });
 
-// Rate limiting on API routes
+// Rate limiting on API routes (safe threshold: 2000 requests per 15 min; skip authenticated admin)
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: 2000,
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req) => {
+        return Boolean(req.headers.authorization || req.path === '/health' || req.path === '/api/health');
+    },
     message: { success: false, message: 'Too many requests, please try again later.' }
 });
 app.use('/api', apiLimiter);

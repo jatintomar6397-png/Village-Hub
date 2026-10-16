@@ -32,9 +32,10 @@ const crudFor = (tableName, allowedFields) => {
                 if (isConfigured && supabaseAdmin) {
                     let query = supabaseAdmin.from(tableName).select('*');
                     if (req.query.district) query = query.eq('district', req.query.district);
-                    if (req.query.crop_name) query = query.eq('crop_name', req.query.crop_name);
-                    if (req.query.crop_season) query = query.eq('crop_season', req.query.crop_season);
-                    if (req.query.commodity) query = query.eq('commodity', req.query.commodity);
+                    if (req.query.crop_name) query = query.ilike('crop_name', `%${req.query.crop_name}%`);
+                    const season = req.query.crop_season || req.query.season;
+                    if (season) query = query.eq('crop_season', season);
+                    if (req.query.commodity) query = query.ilike('commodity', `%${req.query.commodity}%`);
                     if (req.query.search) query = query.or(`crop_name.ilike.%${req.query.search}%,district.ilike.%${req.query.search}%`);
                     const { data, error } = await query.order('id', { ascending: true });
                     if (!error) {
@@ -46,9 +47,10 @@ const crudFor = (tableName, allowedFields) => {
                 // Fallback to local JsonStore
                 let items = store.getAll();
                 if (req.query.district) items = items.filter(i => i.district === req.query.district);
-                if (req.query.crop_name) items = items.filter(i => i.crop_name === req.query.crop_name);
-                if (req.query.crop_season) items = items.filter(i => i.crop_season === req.query.crop_season);
-                if (req.query.commodity) items = items.filter(i => i.commodity === req.query.commodity);
+                if (req.query.crop_name) items = items.filter(i => i.crop_name && i.crop_name.toLowerCase().includes(req.query.crop_name.toLowerCase()));
+                const season = req.query.crop_season || req.query.season;
+                if (season) items = items.filter(i => i.crop_season === season);
+                if (req.query.commodity) items = items.filter(i => i.commodity && i.commodity.toLowerCase().includes(req.query.commodity.toLowerCase()));
                 if (req.query.search) {
                     const s = req.query.search.toLowerCase();
                     items = items.filter(i => (i.crop_name && i.crop_name.toLowerCase().includes(s)) || (i.district && i.district.toLowerCase().includes(s)));

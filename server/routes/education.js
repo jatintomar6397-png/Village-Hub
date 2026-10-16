@@ -31,8 +31,10 @@ const crudFor = (tableName, allowedFields) => {
                     if (req.query.district) query = query.eq('district', req.query.district);
                     if (req.query.village) query = query.eq('village', req.query.village);
                     if (req.query.block_name) query = query.eq('block_name', req.query.block_name);
-                    if (req.query.facility_type) query = query.eq('facility_type', req.query.facility_type);
-                    if (req.query.school_type) query = query.eq('school_type', req.query.school_type);
+                    const facilityType = req.query.facility_type || (tableName === 'healthcare_facilities' ? req.query.type : null);
+                    if (facilityType) query = query.eq('facility_type', facilityType);
+                    const schoolType = req.query.school_type || (tableName === 'school_info' ? req.query.type : null);
+                    if (schoolType) query = query.eq('school_type', schoolType);
                     if (req.query.search) {
                         const s = req.query.search;
                         if (tableName === 'school_info') {
@@ -53,8 +55,10 @@ const crudFor = (tableName, allowedFields) => {
                 if (req.query.district) items = items.filter(i => i.district === req.query.district);
                 if (req.query.village) items = items.filter(i => i.village === req.query.village);
                 if (req.query.block_name) items = items.filter(i => i.block_name === req.query.block_name);
-                if (req.query.facility_type) items = items.filter(i => i.facility_type === req.query.facility_type);
-                if (req.query.school_type) items = items.filter(i => i.school_type === req.query.school_type);
+                const facilityType = req.query.facility_type || (tableName === 'healthcare_facilities' ? req.query.type : null);
+                if (facilityType) items = items.filter(i => i.facility_type === facilityType);
+                const schoolType = req.query.school_type || (tableName === 'school_info' ? req.query.type : null);
+                if (schoolType) items = items.filter(i => i.school_type === schoolType);
                 if (req.query.search) {
                     const s = req.query.search.toLowerCase();
                     if (tableName === 'school_info') {
