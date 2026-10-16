@@ -1,43 +1,48 @@
+// ==========================================================================
+// 0. Global Sidebar Navigation Handlers (Immediately available)
+// ==========================================================================
+window.toggleSidebarMenu = function(e) {
+    if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+    const btn = document.getElementById('hamburger-btn');
+    const menu = document.getElementById('sidebar-menu');
+    const overlay = document.getElementById('sidebar-overlay');
+    const isOpen = menu && menu.classList.contains('active');
+
+    if (btn) {
+        btn.classList.toggle('active', !isOpen);
+        btn.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
+        btn.setAttribute('aria-label', !isOpen ? 'Close navigation menu' : 'Open navigation menu');
+    }
+    if (menu) menu.classList.toggle('active', !isOpen);
+    if (overlay) overlay.classList.toggle('active', !isOpen);
+    if (document.body) {
+        document.body.style.overflow = !isOpen ? 'hidden' : '';
+    }
+};
+
+window.closeSidebarMenu = function() {
+    const btn = document.getElementById('hamburger-btn');
+    const menu = document.getElementById('sidebar-menu');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (btn) {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.setAttribute('aria-label', 'Open navigation menu');
+    }
+    if (menu) menu.classList.remove('active');
+    if (overlay) overlay.classList.remove('active');
+    if (document.body) {
+        document.body.style.overflow = '';
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     const API = window.VillageHubAPI || window.API;
 
-    // ==========================================================================
-    // 0. Robust Hamburger Sidebar Menu Toggle (Desktop & Mobile)
-    // ==========================================================================
+    // Attach listeners to hamburger button & overlay
     const hamburgerBtn = document.getElementById('hamburger-btn');
     const sidebarMenu = document.getElementById('sidebar-menu');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
-
-    window.toggleSidebarMenu = function(e) {
-        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
-        const btn = document.getElementById('hamburger-btn');
-        const menu = document.getElementById('sidebar-menu');
-        const overlay = document.getElementById('sidebar-overlay');
-        const isOpen = menu && menu.classList.contains('active');
-
-        if (btn) {
-            btn.classList.toggle('active', !isOpen);
-            btn.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
-            btn.setAttribute('aria-label', !isOpen ? 'Close navigation menu' : 'Open navigation menu');
-        }
-        if (menu) menu.classList.toggle('active', !isOpen);
-        if (overlay) overlay.classList.toggle('active', !isOpen);
-        document.body.style.overflow = !isOpen ? 'hidden' : '';
-    };
-
-    window.closeSidebarMenu = function() {
-        const btn = document.getElementById('hamburger-btn');
-        const menu = document.getElementById('sidebar-menu');
-        const overlay = document.getElementById('sidebar-overlay');
-        if (btn) {
-            btn.classList.remove('active');
-            btn.setAttribute('aria-expanded', 'false');
-            btn.setAttribute('aria-label', 'Open navigation menu');
-        }
-        if (menu) menu.classList.remove('active');
-        if (overlay) overlay.classList.remove('active');
-        document.body.style.overflow = '';
-    };
 
     if (hamburgerBtn) {
         hamburgerBtn.setAttribute('aria-label', 'Open navigation menu');
@@ -47,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sidebarOverlay) {
         sidebarOverlay.addEventListener('click', window.closeSidebarMenu);
     }
+
 
     // Attach to any close buttons inside sidebar
     document.querySelectorAll('.sidebar-close-btn').forEach(btn => {
@@ -263,11 +269,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabSignup = document.getElementById('tab-signup');
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
-
-    const API = window.VillageHubAPI;
-
     // Update navbar based on auth state
     const updateNavAuth = () => {
+
         const user = API ? API.getUser() : null;
         if (user && openAuthBtn) {
             // Replace login button with user info

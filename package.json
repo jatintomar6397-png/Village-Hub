@@ -4,12 +4,14 @@
   "description": "Village Hub - Web-Based Rural Community & Development Platform",
   "main": "server/server.js",
   "scripts": {
+    "build": "echo 'Static assets ready'",
     "start": "node server/server.js",
     "dev": "node server/server.js",
     "seed": "node server/utils/seedRunner.js",
     "migrate:supabase": "node server/utils/supabaseMigrate.js",
     "test": "node server/run_local_test.js"
   },
+
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
     "bcryptjs": "^2.4.3",

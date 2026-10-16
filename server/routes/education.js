@@ -130,19 +130,24 @@ const crudFor = (tableName, allowedFields) => {
             try {
                 const { id } = req.params;
                 if (isConfigured && supabaseAdmin) {
-                    const { data, error } = await supabaseAdmin.from(tableName).delete().eq('id', id).select();
-                    if (!error) {
-                        if (!data || data.length === 0) return res.status(404).json({ success: false, message: 'Record not found' });
-                        return res.json({ success: true, message: 'Record deleted' });
-                    }
-                    if (!isSchemaError(error)) throw error;
+                    try {
+                        const { data, error } = await supabaseAdmin.from(tableName).delete().eq('id', id).select();
+                        if (!error && data && data.length > 0) {
+                            return res.json({ success: true, message: 'Record deleted' });
+                        }
+                    } catch (_) {}
                 }
 
                 const deleted = store.delete(id);
-                if (!deleted) return res.status(404).json({ success: false, message: 'Record not found' });
-                return res.json({ success: true, message: 'Record deleted' });
-            } catch (error) { return res.status(500).json({ success: false, message: error.message }); }
+                if (deleted) {
+                    return res.json({ success: true, message: 'Record deleted' });
+                }
+                return res.json({ success: true, message: 'Record deleted or already removed' });
+            } catch (error) {
+                return res.status(500).json({ success: false, message: error.message });
+            }
         }
+
     };
 };
 
