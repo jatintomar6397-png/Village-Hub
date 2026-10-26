@@ -48,12 +48,14 @@ const auth = async (req, res, next) => {
 
     // 2. Fallback to standard JWT verification (for local/legacy testing)
     const secret = process.env.JWT_SECRET || 'village_hub_super_secret_jwt_key_2024';
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@villagehub.in').toLowerCase();
     try {
       const decoded = jwt.verify(token, secret);
+      const isEmailAdmin = decoded.email && decoded.email.toLowerCase() === adminEmail;
       req.user = {
         id: decoded.id || decoded._id,
         email: decoded.email,
-        role: decoded.role || (decoded.email === 'admin@villagehub.in' ? 'admin' : 'user')
+        role: decoded.role || (isEmailAdmin ? 'admin' : 'user')
       };
       return next();
     } catch (_) {}
@@ -61,10 +63,11 @@ const auth = async (req, res, next) => {
     // 3. Fallback: If Supabase rate-limited auth.getUser, safely check decoded unexpired token
     const decodedUnverified = jwt.decode(token);
     if (decodedUnverified && decodedUnverified.exp && decodedUnverified.exp * 1000 > Date.now()) {
+      const isEmailAdmin = decodedUnverified.email && decodedUnverified.email.toLowerCase() === adminEmail;
       req.user = {
         id: decodedUnverified.sub || decodedUnverified.id,
         email: decodedUnverified.email,
-        role: decodedUnverified.email === 'admin@villagehub.in' ? 'admin' : (decodedUnverified.role || 'user')
+        role: isEmailAdmin ? 'admin' : (decodedUnverified.role || 'user')
       };
       return next();
     }

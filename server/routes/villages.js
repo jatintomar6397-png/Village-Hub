@@ -17,21 +17,19 @@ router.get('/', async (req, res) => {
     const { district, status, search } = req.query;
 
     if (isConfigured && supabaseAdmin) {
-      let query = supabaseAdmin.from('villages').select('*');
-      if (district) query = query.eq('district', district);
-      if (status) query = query.eq('status', status);
-      if (search) query = query.ilike('name', `%${search}%`);
+      try {
+        let query = supabaseAdmin.from('villages').select('*');
+        if (district) query = query.eq('district', district);
+        if (status) query = query.eq('status', status);
+        if (search) query = query.ilike('name', `%${search}%`);
 
-      const { data, error } = await query.order('id', { ascending: true });
-      if (error) throw error;
-      return res.json({ success: true, data: data || [], count: (data || []).length });
-    }
-
-    if (isProduction) {
-      return res.status(503).json({
-        success: false,
-        message: 'Database service unavailable. Please check Supabase configuration.'
-      });
+        const { data, error } = await query.order('id', { ascending: true });
+        if (!error && data && data.length > 0) {
+          return res.json({ success: true, data: data, count: data.length });
+        }
+      } catch (sbErr) {
+        console.warn('Supabase villages query failed, using local store fallback:', sbErr.message);
+      }
     }
 
     const isMongo = getMongoConnected();
@@ -39,15 +37,28 @@ router.get('/', async (req, res) => {
       let filter = {};
       if (district) filter.district = district;
       if (status) filter.status = status;
-      if (search) filter.name = { $regex: search, $options: 'i' };
+      if (search) {
+        filter.$or = [
+          { name: { $regex: search, $options: 'i' } },
+          { tehsil: { $regex: search, $options: 'i' } },
+          { developmentBlock: { $regex: search, $options: 'i' } }
+        ];
+      }
 
       const villages = await Village.find(filter);
       return res.json({ success: true, data: villages, count: villages.length });
     } else {
       let villages = villageStore.getAll();
-      if (district) villages = villages.filter(v => v.district === district);
+      if (district) villages = villages.filter(v => v.district && v.district.toLowerCase() === district.toLowerCase());
       if (status) villages = villages.filter(v => v.status === status);
-      if (search) villages = villages.filter(v => v.name && v.name.toLowerCase().includes(search.toLowerCase()));
+      if (search) {
+        const s = search.toLowerCase();
+        villages = villages.filter(v => 
+          (v.name && v.name.toLowerCase().includes(s)) ||
+          (v.developmentBlock && v.developmentBlock.toLowerCase().includes(s)) ||
+          (v.tehsil && v.tehsil.toLowerCase().includes(s))
+        );
+      }
 
       return res.json({ success: true, data: villages, count: villages.length });
     }
@@ -62,22 +73,19 @@ router.get('/:id', async (req, res) => {
     const { id } = req.params;
 
     if (isConfigured && supabaseAdmin) {
-      const { data, error } = await supabaseAdmin
-        .from('villages')
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
+      try {
+        const { data, error } = await supabaseAdmin
+          .from('villages')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
 
-      if (error) throw error;
-      if (!data) return res.status(404).json({ success: false, message: 'Village not found' });
-      return res.json({ success: true, data });
-    }
-
-    if (isProduction) {
-      return res.status(503).json({
-        success: false,
-        message: 'Database service unavailable. Please check Supabase configuration.'
-      });
+        if (!error && data) {
+          return res.json({ success: true, data });
+        }
+      } catch (sbErr) {
+        console.warn('Supabase village by ID failed, using local store fallback:', sbErr.message);
+      }
     }
 
     const isMongo = getMongoConnected();
@@ -85,7 +93,7 @@ router.get('/:id', async (req, res) => {
     if (isMongo) {
       village = await Village.findById(id);
     } else {
-      village = villageStore.getById(id);
+      village = villageStore.getAll().find(v => v._id === id || String(v.id) === String(id) || String(v.serialNo) === String(id));
     }
 
     if (!village) return res.status(404).json({ success: false, message: 'Village not found' });

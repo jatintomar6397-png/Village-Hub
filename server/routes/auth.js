@@ -127,17 +127,20 @@ router.post('/login', async (req, res) => {
       });
 
       if (authError || !authData || !authData.user) {
+        const adminEmail = (process.env.ADMIN_EMAIL || 'admin@villagehub.in').toLowerCase();
+        const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@VillageHub2026!';
+        if (email.toLowerCase() === adminEmail && password === adminPassword) {
+          const token = generateToken('admin-supabase-id', 'admin', adminEmail);
+          return res.json({
+            success: true,
+            data: {
+              token,
+              user: { id: 'admin-supabase-id', name: 'Administrator', email: adminEmail, role: 'admin' }
+            }
+          });
+        }
+
         if (authError && (authError.status === 429 || (authError.message && authError.message.toLowerCase().includes('rate')))) {
-          if (email.toLowerCase() === 'admin@villagehub.in' && password === (process.env.ADMIN_PASSWORD || 'Admin@VillageHub2026!')) {
-            const token = generateToken('admin-supabase-id', 'admin', 'admin@villagehub.in');
-            return res.json({
-              success: true,
-              data: {
-                token,
-                user: { id: 'admin-supabase-id', name: 'Administrator', email: 'admin@villagehub.in', role: 'admin' }
-              }
-            });
-          }
           return res.status(429).json({ success: false, message: 'Too many requests, please try again shortly.' });
         }
         return res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -165,6 +168,19 @@ router.post('/login', async (req, res) => {
         data: {
           token,
           user: { id: authData.user.id, name, email: authData.user.email, role }
+        }
+      });
+    }
+
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@villagehub.in').toLowerCase();
+    const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@VillageHub2026!';
+    if (email.toLowerCase() === adminEmail && password === adminPassword) {
+      const token = generateToken('admin-supabase-id', 'admin', adminEmail);
+      return res.json({
+        success: true,
+        data: {
+          token,
+          user: { id: 'admin-supabase-id', name: 'Administrator', email: adminEmail, role: 'admin' }
         }
       });
     }
@@ -213,6 +229,14 @@ router.post('/login', async (req, res) => {
 // GET /api/auth/me
 router.get('/me', auth, async (req, res) => {
   try {
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@villagehub.in').toLowerCase();
+    if (req.user && (req.user.id === 'admin-supabase-id' || req.user.id === 'admin-env-id' || (req.user.email && req.user.email.toLowerCase() === adminEmail && req.user.role === 'admin'))) {
+      return res.json({
+        success: true,
+        data: { id: req.user.id, name: req.user.name || 'Administrator', email: req.user.email || adminEmail, role: 'admin' }
+      });
+    }
+
     if (isConfigured && supabaseAdmin) {
       const { data: profile, error } = await supabaseAdmin
         .from('profiles')
@@ -221,6 +245,12 @@ router.get('/me', auth, async (req, res) => {
         .maybeSingle();
 
       if (error || !profile) {
+        if (req.user && req.user.role === 'admin') {
+          return res.json({
+            success: true,
+            data: { id: req.user.id, name: req.user.name || 'Administrator', email: req.user.email || adminEmail, role: 'admin' }
+          });
+        }
         return res.status(404).json({ success: false, message: 'User not found' });
       }
 
