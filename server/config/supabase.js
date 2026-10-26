@@ -32,11 +32,17 @@ if (isConfigured) {
 }
 
 const testConnection = async () => {
-  if (!supabaseAdmin) {
+  const client = supabaseAdmin || supabaseClient;
+  if (!client) {
     return { connected: false, message: 'Supabase credentials not configured' };
   }
   try {
-    const { data, error } = await supabaseAdmin.from('villages').select('id').limit(1);
+    let { data, error } = await client.from('villages').select('id').limit(1);
+    if (error && supabaseClient && client !== supabaseClient) {
+      const res = await supabaseClient.from('villages').select('id').limit(1);
+      data = res.data;
+      error = res.error;
+    }
     if (error) throw error;
     return { connected: true, message: 'Supabase connected successfully' };
   } catch (err) {

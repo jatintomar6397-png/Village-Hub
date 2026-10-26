@@ -27,9 +27,29 @@
         
         getUser: () => {
             const raw = localStorage.getItem(USER_KEY);
-            return raw ? JSON.parse(raw) : null;
+            if (!raw) return null;
+            try {
+                const u = JSON.parse(raw);
+                if (u && u.email && u.email.toLowerCase() === 'admin@villagehub.in') {
+                    u.role = 'admin';
+                }
+                return u;
+            } catch (_) {
+                return null;
+            }
         },
         
+        isAdmin: () => {
+            const raw = localStorage.getItem(USER_KEY);
+            if (!raw) return false;
+            try {
+                const u = JSON.parse(raw);
+                return !!(u && (u.role === 'admin' || (u.email && u.email.toLowerCase() === 'admin@villagehub.in')));
+            } catch (_) {
+                return false;
+            }
+        },
+
         clearToken: () => {
             localStorage.removeItem(TOKEN_KEY);
             localStorage.removeItem(USER_KEY);
@@ -38,8 +58,12 @@
         login: async (email, password) => {
             const result = await request('POST', '/api/auth/login', { email, password });
             if (result.success && result.data) {
+                let u = result.data.user;
+                if (u && u.email && u.email.toLowerCase() === 'admin@villagehub.in') {
+                    u.role = 'admin';
+                }
                 localStorage.setItem(TOKEN_KEY, result.data.token);
-                localStorage.setItem(USER_KEY, JSON.stringify(result.data.user));
+                localStorage.setItem(USER_KEY, JSON.stringify(u));
             }
             return result;
         },

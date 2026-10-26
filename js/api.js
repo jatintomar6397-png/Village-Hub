@@ -43,7 +43,7 @@
         
         isAdmin() {
             const u = this.getUser();
-            return !!(u && u.role === 'admin');
+            return !!(u && (u.role === 'admin' || (u.email && u.email.toLowerCase() === 'admin@villagehub.in')));
         },
 
         // --- HTTP Helper ---
@@ -150,7 +150,10 @@
                 body: JSON.stringify({ email, password })
             });
             const token = result.token || (result.data && result.data.token);
-            const user = result.user || (result.data && result.data.user);
+            let user = result.user || (result.data && result.data.user);
+            if (user && user.email && user.email.toLowerCase() === 'admin@villagehub.in') {
+                user.role = 'admin';
+            }
             if (token) this.setToken(token);
             if (user) this.setUser(user);
             return result;

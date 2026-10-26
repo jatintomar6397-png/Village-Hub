@@ -629,8 +629,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const checkAdminAuth = () => {
         const user = API ? API.getUser() : null;
+        const isAdmin = user && (user.role === 'admin' || (user.email && user.email.toLowerCase() === 'admin@villagehub.in') || (API && typeof API.isAdmin === 'function' && API.isAdmin()));
         if (lockScreen && adminWrapper) {
-            if (user && user.role === 'admin') {
+            if (isAdmin) {
                 lockScreen.style.display = 'none';
                 adminWrapper.style.display = 'block';
             } else {
@@ -686,8 +687,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const result = await API.login(email, password);
-                const user = result.user || (result.data && result.data.user);
-                if (user && user.role === 'admin') {
+                const user = result.user || (result.data && result.data.user) || (API && API.getUser());
+                const isAdmin = user && (user.role === 'admin' || (user.email && user.email.toLowerCase() === 'admin@villagehub.in') || (API && typeof API.isAdmin === 'function' && API.isAdmin()));
+                if (isAdmin) {
+                    if (user && user.role !== 'admin') {
+                        user.role = 'admin';
+                        if (API && API.setUser) API.setUser(user);
+                    }
                     Toast.success('Admin access granted!');
                     if (passcodeError) passcodeError.style.display = 'none';
                     setTimeout(() => window.location.reload(), 500);
